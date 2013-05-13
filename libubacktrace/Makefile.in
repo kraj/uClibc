@@ -45,10 +45,10 @@ endif
 libubacktrace_SRCS := $(patsubst %.c,$(libubacktrace_DIR)/%.c,$(libubacktrace_SRC-y))
 libubacktrace_OBJS := $(patsubst $(libubacktrace_DIR)/%.c,$(libubacktrace_OUT)/%.o,$(libubacktrace_SRCS))
 
-libubacktrace_SHARED_SRCS := $(patsubst %.c,$(libubacktrace_DIR)/%.c,$(libubacktrace_SHARED_SRC-y))
-libubacktrace_SHARED_OBJS := $(patsubst $(libubacktrace_DIR)/%.c,$(libubacktrace_OUT)/%.s,$(libubacktrace_SHARED_SRCS))
+libubacktrace_SHARED_SRCS := $(patsubst %.c,$(libubacktrace_DIR)/%.c,$(libubacktrace_SRC_SHARED-y))
+libubacktrace_SHARED_OBJS := $(patsubst $(libubacktrace_DIR)/%.c,$(libubacktrace_OUT)/%.o,$(libubacktrace_SHARED_SRCS))
 
-libubacktrace-shared-y	:= $(libubacktrace_SHARED_OBJS:.os=.oS)
+libubacktrace-shared-y	:= $(libubacktrace_SHARED_OBJS:.o=.oS)
 libubacktrace-static-y	:= $(libubacktrace_SHARED_OBJS)
 
 ifeq ($(DOPIC),y)
