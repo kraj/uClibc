@@ -331,7 +331,9 @@ ifeq ($(TARGET_ARCH),i386)
 $(eval $(call check-gcc-var,-fomit-frame-pointer))
 	OPTIMIZATION += $(CFLAG_-fomit-frame-pointer)
 
-ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586)$(CONFIG_586MMX),y)
+ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586),y)
+	# TODO: Change this to a gcc version check.  This bug
+	# should be fixed with at least gcc-4.3.
 	# Non-SSE capable processor.
 	# NB: this may make SSE insns segfault!
 	# -O1 -march=pentium3, -Os -msse etc are known to be affected.
@@ -350,18 +352,6 @@ endif
 	#  -falign-jumps: reachable only by a jump
 	# Generic: no alignment at all (smallest code)
 	GCC_FALIGN=$(call check_gcc,-falign-functions=1 -falign-jumps=1 -falign-labels=1 -falign-loops=1,-malign-jumps=1 -malign-loops=1)
-ifeq ($(CONFIG_K7),y)
-	# Align functions to four bytes, use default for jumps and loops (why?)
-	GCC_FALIGN=$(call check_gcc,-falign-functions=4 -falign-labels=1,-malign-functions=4)
-endif
-ifeq ($(CONFIG_CRUSOE),y)
-	# Use compiler's default for functions, jumps and loops (why?)
-	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-labels=1,-malign-functions=0)
-endif
-ifeq ($(CONFIG_CYRIXIII),y)
-	# Use compiler's default for functions, jumps and loops (why?)
-	GCC_FALIGN=$(call check_gcc,-falign-functions=0 -falign-labels=1,-malign-functions=0)
-endif
 	OPTIMIZATION+=$(GCC_FALIGN)
 
 	# Putting each function and data object into its own section
@@ -386,22 +376,6 @@ $(eval $(call check-ld-var,--sort-section=alignment))
 
 	CPU_LDFLAGS-y+=-m32
 	CPU_CFLAGS-y+=-m32
-	CPU_CFLAGS-$(CONFIG_386)+=-march=i386
-	CPU_CFLAGS-$(CONFIG_486)+=-march=i486
-	CPU_CFLAGS-$(CONFIG_ELAN)+=-march=i486
-	CPU_CFLAGS-$(CONFIG_586)+=-march=i586
-	CPU_CFLAGS-$(CONFIG_586MMX)+=$(call check_gcc,-march=pentium-mmx,-march=i586)
-	CPU_CFLAGS-$(CONFIG_686)+=-march=i686
-	CPU_CFLAGS-$(CONFIG_PENTIUMII)+=$(call check_gcc,-march=pentium2,-march=i686)
-	CPU_CFLAGS-$(CONFIG_PENTIUMIII)+=$(call check_gcc,-march=pentium3,-march=i686)
-	CPU_CFLAGS-$(CONFIG_PENTIUM4)+=$(call check_gcc,-march=pentium4,-march=i686)
-	CPU_CFLAGS-$(CONFIG_K6)+=$(call check_gcc,-march=k6,-march=i586)
-	CPU_CFLAGS-$(CONFIG_K7)+=$(call check_gcc,-march=athlon,-march=i686)
-	CPU_CFLAGS-$(CONFIG_CRUSOE)+=-march=i686
-	CPU_CFLAGS-$(CONFIG_WINCHIPC6)+=$(call check_gcc,-march=winchip-c6,-march=i586)
-	CPU_CFLAGS-$(CONFIG_WINCHIP2)+=$(call check_gcc,-march=winchip2,-march=i586)
-	CPU_CFLAGS-$(CONFIG_CYRIXIII)+=$(call check_gcc,-march=c3,-march=i486)
-	CPU_CFLAGS-$(CONFIG_NEHEMIAH)+=$(call check_gcc,-march=c3-2,-march=i686)
 endif
 
 ifeq ($(TARGET_ARCH),sparc)

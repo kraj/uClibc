@@ -239,10 +239,10 @@ config TARGET_SUBARCH
 	default "e500" if CONFIG_E500
 	default "classic" if CONFIG_CLASSIC
 	default "sh4" if CONFIG_SH4
-	default "" if CONFIG_GENERIC_386 || CONFIG_386
+	default "" if CONFIG_386
 	default "i486" if CONFIG_486
-	default "i586" if CONFIG_586 || CONFIG_586MMX
-	default "i686" if TARGET_ARCH = "i386"
+	default "i586" if CONFIG_586
+	default "i686" if CONFIG_686
 	default ""
 
 source "extra/Configs/Config.in.arch"
