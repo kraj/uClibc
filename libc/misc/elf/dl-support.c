@@ -19,6 +19,7 @@
 #include <ldsodefs.h>
 #include <string.h>
 #endif
+#include <bits/uClibc_page.h>
 
 #if defined(USE_TLS) && USE_TLS
 
