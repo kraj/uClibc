@@ -4218,7 +4218,7 @@ int res_mkquery(int op, const char *dname, int class, int type,
 	hp = (HEADER *) buf;
 	hp->id = getpid() & 0xffff;
 	hp->opcode = op;
-	hp->rd = (_res.options & RES_RECURSE) != 0U;
+	hp->rd = (_res_options & RES_RECURSE) != 0U;
 	hp->rcode = NOERROR;
 
 	cp = buf + HFIXEDSZ;
