@@ -854,7 +854,7 @@ extern char *cuserid (char *__s);
 #endif /* Use X/Open, but not issue 6.  */
 
 
-#if 0 /* def	__USE_GNU uClibc note: not supported */
+#if defined __USE_GNU && defined __UCLIBC_HAS_OBSTACK__
 struct obstack;			/* See <obstack.h>.  */
 
 /* Write formatted output to an obstack.  */
@@ -865,7 +865,7 @@ extern int obstack_vprintf (struct obstack *__restrict __obstack,
 			    const char *__restrict __format,
 			    __gnuc_va_list __args)
      __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
-#endif /* Use GNU.  */
+#endif /* USE_GNU && UCLIBC_HAS_OBSTACK.  */
 
 
 #if defined __USE_POSIX || defined __USE_MISC

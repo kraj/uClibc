@@ -1,4 +1,8 @@
-/* Test case by Alexandre Duret-Lutz <duret_g@epita.fr>.  */
+/* Test case by Alexandre Duret-Lutz <duret_g@epita.fr>.
+ * test_obstack_printf() added by Anthony G. Basile <blueness.gentoo.org>.
+ */
+
+#include <features.h>
 #include <obstack.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -26,7 +30,7 @@ verbose_free (void *buf)
 }
 
 int
-main (void)
+test_obstack_alloc (void)
 {
   int result = 0;
   int align = 2;
@@ -61,4 +65,40 @@ main (void)
     }
 
   return result;
+}
+
+int
+test_obstack_printf (void)
+{
+  int result = 0;
+  int n;
+  char *s;
+  struct obstack ob;
+
+  obstack_init (&ob);
+
+  n = obstack_printf (&ob, "%s%d%c", "testing 1 ... 2 ... ", 3, '\n');
+  result |= (n != 22);
+  printf("obstack_printf => %d\n", n);
+
+  n = obstack_printf (&ob, "%s%d%c", "testing 3 ... 2 ... ", 1, '\0');
+  result |= (n != 22);
+  printf("obstack_printf => %d\n", n);
+
+  s = obstack_finish (&ob);
+  printf("obstack_printf => %s\n", s);
+  obstack_free (&ob, NULL);
+
+  return result;
+}
+
+int
+main (void)
+{
+   int result = 0;
+
+   result |= test_obstack_alloc();
+   result |= test_obstack_printf();
+
+   return result;
 }

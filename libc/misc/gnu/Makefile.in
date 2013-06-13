@@ -7,7 +7,7 @@
 
 subdirs += libc/misc/gnu
 
-CSRC-$(UCLIBC_HAS_OBSTACK) := obstack.c
+CSRC-$(UCLIBC_HAS_OBSTACK) := obstack.c obprintf.c
 
 MISC_GNU_DIR := $(top_srcdir)libc/misc/gnu
 MISC_GNU_OUT := $(top_builddir)libc/misc/gnu
