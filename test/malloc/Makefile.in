@@ -6,3 +6,7 @@ TESTS_DISABLED := time_malloc
 ifneq ($(UCLIBC_SUSV2_LEGACY),y)
 TESTS_DISABLED += tst-valloc
 endif
+
+ifneq ($(UCLIBC_HAS_OBSTACK),y)
+TESTS_DISABLED += tst-obstack
+endif

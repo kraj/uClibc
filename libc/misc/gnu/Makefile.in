@@ -7,8 +7,7 @@
 
 subdirs += libc/misc/gnu
 
-#XXX: add UCLIBC_HAS_OBSTACK
-CSRC-y := obstack.c
+CSRC-$(UCLIBC_HAS_OBSTACK) := obstack.c
 
 MISC_GNU_DIR := $(top_srcdir)libc/misc/gnu
 MISC_GNU_OUT := $(top_builddir)libc/misc/gnu
