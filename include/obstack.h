@@ -179,6 +179,7 @@ struct obstack		/* control current object in current chunk */
 /* Declare the external functions we use; they are in obstack.c.  */
 
 extern void _obstack_newchunk (struct obstack *, int);
+libc_hidden_proto(_obstack_newchunk)
 extern int _obstack_begin (struct obstack *, int, int,
 			    void *(*) (long), void (*) (void *));
 extern int _obstack_begin_1 (struct obstack *, int, int,

@@ -865,6 +865,7 @@ extern int obstack_vprintf (struct obstack *__restrict __obstack,
 			    const char *__restrict __format,
 			    __gnuc_va_list __args)
      __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
+libc_hidden_proto(obstack_vprintf)
 #endif /* USE_GNU && UCLIBC_HAS_OBSTACK.  */
 
 
