@@ -322,9 +322,7 @@ _obstack_newchunk (struct obstack *h, int length)
   /* The new chunk certainly contains no empty object yet.  */
   h->maybe_empty_object = 0;
 }
-# if 0
-libc_hidden_def (_obstack_newchunk)
-# endif
+libc_hidden_def(_obstack_newchunk)
 
 /* Return nonzero if object OBJ has been allocated from obstack H.
    This is here for debugging.
