@@ -138,13 +138,19 @@ export MAJOR_VERSION MINOR_VERSION SUBLEVEL VERSION ABI_VERSION LC_ALL
 LIBC := libc
 SHARED_LIBNAME := $(LIBC).so.$(ABI_VERSION)
 UBACKTRACE_DSO := libubacktrace.so.$(ABI_VERSION)
-ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 mips64 powerpc64 s390x sparc64 x86_64 ),)
+
+UCLIBC_LDSO_NAME := ld-uClibc
+ARCH_NATIVE_BIT := 32
+ifneq ($(findstring $(TARGET_ARCH),hppa64 ia64 powerpc64 s390x sparc64 x86_64),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 ARCH_NATIVE_BIT := 64
 else
-UCLIBC_LDSO_NAME := ld-uClibc
-ARCH_NATIVE_BIT := 32
+ifeq ($(CONFIG_MIPS_N64_ABI),y)
+UCLIBC_LDSO_NAME := ld64-uClibc
+ARCH_NATIVE_BIT := 64
 endif
+endif
+
 UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(ABI_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
 libc := $(top_builddir)lib/$(SHARED_LIBNAME)
