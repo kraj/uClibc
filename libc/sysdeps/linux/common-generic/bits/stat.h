@@ -63,8 +63,8 @@ struct stat
     unsigned long long __pad4;
     long __pad5;
     long st_size;				/* Size of file, in bytes. */
-    int __pad6;
     int st_blksize;				/* Optimal block size for I/O. */
+    int __pad6;
     long __pad7;
     long st_blocks;				/* Number 512-byte blocks allocated */
 # endif /* __LITTLE_ENDIAN */
