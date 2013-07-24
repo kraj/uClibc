@@ -141,7 +141,7 @@ UBACKTRACE_DSO := libubacktrace.so.$(ABI_VERSION)
 
 UCLIBC_LDSO_NAME := ld-uClibc
 ARCH_NATIVE_BIT := 32
-ifneq ($(findstring $(TARGET_ARCH),hppa64 ia64 powerpc64 s390x sparc64 x86_64),)
+ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 powerpc64 s390x sparc64 x86_64 ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 ARCH_NATIVE_BIT := 64
 else
