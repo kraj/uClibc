@@ -96,10 +96,6 @@ extern void _dl_add_to_slotinfo (struct link_map  *l);
 extern void ** __attribute__ ((const)) _dl_initial_error_catch_tsd (void);
 #endif
 
-#ifdef USE_TLS
-void _dl_add_to_slotinfo (struct link_map  *l);
-void ** __attribute__ ((const)) _dl_initial_error_catch_tsd (void);
-#endif
 #ifdef __SUPPORT_LD_DEBUG__
 extern char *_dl_debug;
 extern char *_dl_debug_symbols;
