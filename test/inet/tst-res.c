@@ -22,7 +22,9 @@ int main(int argc, char **argv)
 		abort();
 	}
 
+#ifdef __UCLIBC_HAS_BSD_RES_CLOSE__
     res_close();
+#endif
 #ifdef __UCLIBC__
 	/* assume there is at least one resolver configured */
 	assert (state._u._ext.nscount > 0);
