@@ -308,7 +308,9 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	struct elf_resolve **init_fini_list;
 	static bool _dl_init;
 	struct elf_resolve **local_scope;
+#ifdef SHARED
 	struct r_scope_elem *ls;
+#endif
 #if defined(USE_TLS) && USE_TLS
 	bool any_tls = false;
 #endif
