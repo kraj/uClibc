@@ -32,8 +32,8 @@ struct sigcontext
   unsigned long sc_sar;
   unsigned long sc_acclo;
   unsigned long sc_acchi;
-  void *sc_xtregs;
   unsigned long sc_a[16];
+  void *sc_xtregs;
 };
 
 #endif /* _BITS_SIGCONTEXT_H */
