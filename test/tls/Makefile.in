@@ -102,9 +102,9 @@ LDFLAGS_tst-tls6 := -ldl
 LDFLAGS_tst-tls7 := -ldl
 LDFLAGS_tst-tls8 := -ldl
 LDFLAGS_tst-tls9 := -ldl
-LDFLAGS_tst-tls10 := -Wl,-rpath-link=. tst-tlsmod8.so
-LDFLAGS_tst-tls11 := -Wl,-rpath-link=. tst-tlsmod10.so
-LDFLAGS_tst-tls12 := -Wl,-rpath-link=. tst-tlsmod12.so
+LDFLAGS_tst-tls10 := -Wl,-rpath-link=. tst-tlsmod8.so tst-tlsmod7.so
+LDFLAGS_tst-tls11 := -Wl,-rpath-link=. tst-tlsmod9.so tst-tlsmod10.so
+LDFLAGS_tst-tls12 := -Wl,-rpath-link=. tst-tlsmod11.so tst-tlsmod12.so
 LDFLAGS_tst-tls13 := -ldl -Wl,-rpath-link=.
 LDFLAGS_tst-tls14 := -ldl -Wl,-rpath-link=. tst-tlsmod14a.so
 LDFLAGS_tst-tls15 := -ldl -Wl,-rpath-link=.
