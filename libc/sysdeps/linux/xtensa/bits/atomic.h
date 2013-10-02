@@ -154,7 +154,7 @@ typedef uintmax_t uatomic_max_t;
       : "=&a" (__value), "=&a" (__tmp)                               \
       : "a" (mem)                                                    \
       : "memory" );                                                  \
-    __tmp;                                                           \
+    __value;                                                         \
   })
 
 
