@@ -12,5 +12,6 @@
 
 #ifdef __NR_prctl
 int prctl (int, long, long, long, long);
-_syscall5(int, prctl, int, option, long, _a2, long, _a3, long, _a4, long, _a5)
+_syscall5(int, prctl, int, option, long, _prctl_a2, long, _prctl_a3,
+		long, _prctl_a4, long, _prctl_a5)
 #endif
