@@ -10,7 +10,9 @@
 extern "C" {
 #endif
 
+#include <assert.h>
 #include <stdio.h>
+#include "list.h"
 #ifndef __cplusplus
 #include <stdbool.h>
 #endif
@@ -18,13 +20,9 @@ extern "C" {
 struct file {
 	struct file *next;
 	struct file *parent;
-	char *name;
+	const char *name;
 	int lineno;
-	int flags;
 };
-
-#define FILE_BUSY		0x0001
-#define FILE_SCANNED		0x0002
 
 typedef enum tristate {
 	no, mod, yes
@@ -83,10 +81,11 @@ struct symbol {
 	tristate visible;
 	int flags;
 	struct property *prop;
+	struct expr_value dir_dep;
 	struct expr_value rev_dep;
 };
 
-#define for_all_symbols(i, sym) for (i = 0; i < 257; i++) for (sym = symbol_hash[i]; sym; sym = sym->next) if (sym->type != S_OTHER)
+#define for_all_symbols(i, sym) for (i = 0; i < SYMBOL_HASHSIZE; i++) for (sym = symbol_hash[i]; sym; sym = sym->next) if (sym->type != S_OTHER)
 
 #define SYMBOL_CONST      0x0001  /* symbol is const */
 #define SYMBOL_CHECK      0x0008  /* used during dependency checking */
@@ -107,9 +106,11 @@ struct symbol {
 #define SYMBOL_DEF3       0x40000  /* symbol.def[S_DEF_3] is valid */
 #define SYMBOL_DEF4       0x80000  /* symbol.def[S_DEF_4] is valid */
 
+/* choice values need to be set before calculating this symbol value */
+#define SYMBOL_NEED_SET_CHOICE_VALUES  0x100000
+
 #define SYMBOL_MAXLENGTH	256
-#define SYMBOL_HASHSIZE		257
-#define SYMBOL_HASHMASK		0xff
+#define SYMBOL_HASHSIZE		9973
 
 /* A property represent the config options that can be associated
  * with a config "symbol".
@@ -132,6 +133,7 @@ enum prop_type {
 	P_SELECT,   /* select BAR */
 	P_RANGE,    /* range 7..100 (for a symbol) */
 	P_ENV,      /* value from environment variable */
+	P_SYMBOL,   /* where a symbol is defined */
 };
 
 struct property {
@@ -163,6 +165,7 @@ struct menu {
 	struct menu *list;
 	struct symbol *sym;
 	struct property *prompt;
+	struct expr *visibility;
 	struct expr *dep;
 	unsigned int flags;
 	char *help;
@@ -174,7 +177,14 @@ struct menu {
 #define MENU_CHANGED		0x0001
 #define MENU_ROOT		0x0002
 
-#ifndef SWIG
+struct jump_key {
+	struct list_head entries;
+	size_t offset;
+	struct menu *target;
+	int index;
+};
+
+#define JUMP_NB			9
 
 extern struct file *file_list;
 extern struct file *current_file;
@@ -190,7 +200,7 @@ struct expr *expr_alloc_two(enum expr_type type, struct expr *e1, struct expr *e
 struct expr *expr_alloc_comp(enum expr_type type, struct symbol *s1, struct symbol *s2);
 struct expr *expr_alloc_and(struct expr *e1, struct expr *e2);
 struct expr *expr_alloc_or(struct expr *e1, struct expr *e2);
-struct expr *expr_copy(struct expr *org);
+struct expr *expr_copy(const struct expr *org);
 void expr_free(struct expr *e);
 int expr_eq(struct expr *e1, struct expr *e2);
 void expr_eliminate_eq(struct expr **ep1, struct expr **ep2);
@@ -205,6 +215,7 @@ struct expr *expr_extract_eq_and(struct expr **ep1, struct expr **ep2);
 struct expr *expr_extract_eq_or(struct expr **ep1, struct expr **ep2);
 void expr_extract_eq(enum expr_type type, struct expr **ep, struct expr **ep1, struct expr **ep2);
 struct expr *expr_trans_compare(struct expr *e, enum expr_type type, struct symbol *sym);
+struct expr *expr_simplify_unmet_dep(struct expr *e1, struct expr *e2);
 
 void expr_fprint(struct expr *e, FILE *out);
 struct gstr; /* forward */
@@ -219,7 +230,6 @@ static inline int expr_is_no(struct expr *e)
 {
 	return e && (e->type == E_SYMBOL && e->left.sym == &symbol_no);
 }
-#endif
 
 #ifdef __cplusplus
 }

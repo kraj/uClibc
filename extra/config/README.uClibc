@@ -5,7 +5,7 @@ To update:
 	cd extra/config.new
 	cp /usr/src/linux/Documentation/kbuild/kconfig-language.txt .
 	mv Makefile Makefile.kconfig
-	zcat ../config/kconfig-to-uclibc.patch.gz | patch -p1
+	tar -O -xzf ../config/kconfig-to-uclibc.tar.gz | patch -p3
 	cp ../config/README.uClibc .
 	cp ../config/Makefile .
 	cd ..

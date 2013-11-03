@@ -46,6 +46,7 @@ include $(top_srcdir)libc/Makefile.in
 
 conf := $(top_builddir)extra/config/conf
 mconf := $(top_builddir)extra/config/mconf
+nconf := $(top_builddir)extra/config/nconf
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 # If the .config changes then we have to make sure that our includes are
@@ -53,9 +54,9 @@ ifeq ($(HAVE_DOT_CONFIG),y)
 # have uClibc_config.h as prerequisite but since we _symlink_ the headers
 # and do not (?) want to rely on 'make -L' we better update them right here,
 # on spot to save us from alot of hazzle.
-$(top_builddir)include/bits/uClibc_config.h: $(conf) $(KCONFIG_CONFIG) $(top_srcdir)extra/scripts/conf-header.sh | $(top_builddir)include/bits $(top_builddir)include/config
+$(top_builddir)include/bits/uClibc_config.h: $(conf) $(KCONFIG_CONFIG) $(top_srcdir)extra/scripts/conf-header.sh | $(top_builddir)include/bits
 	@$(disp_gen)
-	$(Q)$< -s $(top_srcdir)extra/Configs/Config.in
+	$(Q)$< -s $(Kconfig)
 	$(Q)$(top_srcdir)extra/scripts/conf-header.sh $(KCONFIG_CONFIG) > $@
 	$(Q)$(MAKE) headers-y
 
@@ -217,6 +218,8 @@ $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c
 # a "y" here means the feature is enabled and so we should *not* rm it.
 # if the option expands to nothing though, we can punt the headers.
 HEADERS_RM- := \
+	config \
+	generated \
 	internal \
 	cancel.h \
 	dl-osinfo.h \
@@ -440,47 +443,55 @@ hostutils: | pregen
 install_hostutils: hostutils
 	$(Q)$(MAKE) CROSS_COMPILE="$(CROSS_COMPILE)" CC="$(CC)" HOSTCC="$(HOSTCC)" DOTHOST=.host -C utils utils_install
 
-$(addprefix $(top_builddir),include include/bits include/sys include/config lib extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
+$(addprefix $(top_builddir),include include/bits include/sys include/config include/generated lib extra/config/lxdialog extra/locale extra/scripts $(subdirs)):
 	$(do_mkdir)
 
 # configuration
 # ---------------------------------------------------------------------------
-$(conf) $(mconf): | $(top_builddir)include/config $(top_builddir)extra/config/lxdialog
+$(conf) $(mconf) $(nconf): | $(top_builddir)include/config $(top_builddir)include/generated $(top_builddir)extra/config/lxdialog
 	$(Q)$(MAKE) -C extra/config $(@F)
 
 arch-defconfigs := $(notdir $(wildcard $(top_srcdir)extra/Configs/defconfigs/$(ARCH)/*_defconfig))
 
 menuconfig: $(mconf)
-	$(Q)$< extra/Configs/Config.in
-
+	$(Q)$< $(Kconfig)
 config: $(conf)
-	$(Q)$< extra/Configs/Config.in
+	$(Q)$< $(Kconfig)
+nconfig: $(nconf)
+	$(Q)$< $(Kconfig)
 
-oldconfig: $(conf)
-	$(Q)$< -o extra/Configs/Config.in
-
+oldaskconfig: $(conf)
+	$(Q)$< -a $(Kconfig)
 silentoldconfig: $(conf)
-	$(Q)$< -s extra/Configs/Config.in
-
-randconfig: $(conf)
-	$(Q)$< -r extra/Configs/Config.in
-
+	$(Q)$< -s $(Kconfig)
+oldconfig: $(conf)
+	$(Q)$< -o $(Kconfig)
+allnoconfig: $(conf)
+	$(Q)$< -n $(Kconfig)
 allyesconfig: $(conf)
-	$(Q)$< -y extra/Configs/Config.in
+	$(Q)$< -y $(Kconfig)
 	$(SED) -i -e "s/^DODEBUG=.*/# DODEBUG is not set/" \
 		-e "s/^DOASSERTS=.*/# DOASSERTS is not set/" \
 		-e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" \
 		-e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" \
 		-e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" \
 		$(KCONFIG_CONFIG)
-	$(Q)$< -o extra/Configs/Config.in
+	$(Q)$< -o $(Kconfig)
+alldefconfig: $(conf)
+	$(Q)$< -A $(Kconfig)
+randconfig: $(conf)
+	$(Q)$< -r $(Kconfig)
 
-allnoconfig: $(conf)
-	$(Q)$< -n extra/Configs/Config.in
-
-cmd_defconfig = $(Q)$< -D extra/Configs/defconfigs/$(ARCH)/$@ extra/Configs/Config.in
+cmd_defconfig = $(Q)$< -D extra/Configs/defconfigs/$(ARCH)/$@ $(Kconfig)
 defconfig: $(conf)   ; $(cmd_defconfig)
 %_defconfig: $(conf) ; $(cmd_defconfig)
+
+savedefconfig: $(conf)
+	$(Q)$< -S $(KCONFIG_CONFIG) $(Kconfig)
+listnewconfig: $(conf)
+	$(Q)$< -l $(Kconfig)
+olddefconfig: $(conf)
+	$(Q)$< -d $(Kconfig)
 
 menuconfig-clean-y:
 	$(Q)$(MAKE) -C extra/config CLEAN_extra/config
@@ -516,10 +527,8 @@ dist release:
 
 test check: test_compile
 	$(Q)$(MAKE) -C test \
-		KCONFIG_CONFIG=$(__ABS_KCONFIG_CONFIG) \
 		$(if $(O),top_builddir=$(O)/)
 
 test_compile: $(LOCAL_INSTALL_PATH)
 	$(Q)$(MAKE) -C test compile \
-		KCONFIG_CONFIG=$(__ABS_KCONFIG_CONFIG) \
 		$(if $(O),top_builddir=$(O)/)

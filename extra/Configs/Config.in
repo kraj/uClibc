@@ -3,11 +3,15 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc C Library Configuration"
+mainmenu "uClibc $VERSION C Library Configuration"
 
 config DESIRED_TARGET_ARCH
 	string
 	option env="ARCH"
+
+config VERSION
+	string
+	option env="VERSION"
 
 choice
 	prompt "Target Architecture"

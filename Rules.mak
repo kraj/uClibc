@@ -29,9 +29,11 @@ endif
 
 clean_targets := clean realclean distclean \
 	objclean-y headers_clean-y CLEAN_utils
-noconfig_targets := menuconfig config oldconfig silentoldconfig randconfig \
-	defconfig allyesconfig allnoconfig \
-	xconfig gconfig update-po-config mconf qconf gconf conf \
+noconfig_targets := menuconfig config nconfig \
+	oldaskconfig silentoldconfig oldconfig allnoconfig allyesconfig \
+	alldefconfig randconfig defconfig savedefconfig listnewconfig \
+	olddefconfig \
+	xconfig gconfig update-po-config mconf qconf gconf nconf conf \
 	release dist tags help
 
 
@@ -70,7 +72,7 @@ STRIP_FLAGS ?= -x -R .note -R .comment
 
 # Select the compiler needed to build binaries for your development system
 HOSTCC     = gcc
-BUILD_CFLAGS = -Os -Wall
+BUILD_CFLAGS = -Os
 
 #---------------------------------------------------------
 # Nothing beyond this point should ever be touched by mere
@@ -81,20 +83,23 @@ BUILD_CFLAGS = -Os -Wall
 qstrip = $(strip $(subst ",,$(1)))
 #"))
 
+# kconfig stuff
 KCONFIG_CONFIG ?= $(top_builddir).config
+KCONFIG_CONFIG := $(abspath $(KCONFIG_CONFIG))
+export KCONFIG_CONFIG
+KCONFIG_AUTOCONFIG := $(dir $(KCONFIG_CONFIG))include/config/auto.conf
+export KCONFIG_AUTOCONFIG
+KCONFIG_TRISTATE := $(dir $(KCONFIG_CONFIG))include/config/tristate.conf
+export KCONFIG_TRISTATE
+srctree := $(abspath $(top_srcdir))
+export srctree
+KCONFIG_AUTOHEADER := $(dir $(KCONFIG_CONFIG))include/generated/autoconf.h
+export KCONFIG_AUTOHEADER
+Kconfig := $(abspath $(top_srcdir)extra/Configs/Config.in)
 
 # Pull in the user's uClibc configuration
 ifeq ($(filter $(noconfig_targets) clean CLEAN_%,$(MAKECMDGOALS)),)
-# Prevent make from searching
-__ABS_KCONFIG_CONFIG ?= $(abspath $(KCONFIG_CONFIG))
--include $(__ABS_KCONFIG_CONFIG)
-else
-# else we have to tell config where to write .config
-export KCONFIG_CONFIG
-endif
-ifeq ($(HAVE_DOT_CONFIG),y)
-# tell config where our .config lives
-export KCONFIG_CONFIG
+-include $(KCONFIG_CONFIG)
 endif
 
 TARGET_ARCH:=$(call qstrip,$(TARGET_ARCH))

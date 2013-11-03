@@ -8,6 +8,7 @@
 #
 /bits/
 /config/
+/generated/
 
 /bfin_fixed_code.h
 /bfin_l1layout.h
