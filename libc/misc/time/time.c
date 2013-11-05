@@ -601,11 +601,11 @@ typedef struct ll_tzname_item {
 } ll_tzname_item_t;
 
 /* Structures form a list "UTC" -> "???" -> "tzname1" -> "tzname2"... */
-struct {
+static struct {
 	struct ll_tzname_item *next;
 	char tzname[4];
 } ll_tzname_UNKNOWN = { NULL, "???" };
-const struct {
+static const struct {
 	struct ll_tzname_item *next;
 	char tzname[4];
 } ll_tzname_UTC = { (void*)&ll_tzname_UNKNOWN, "UTC" };
