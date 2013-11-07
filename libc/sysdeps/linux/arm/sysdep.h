@@ -156,6 +156,7 @@
 #define	PSEUDO_END_ERRVAL(name) \
   END (name)
 
+#undef ret_ERRVAL
 #define ret_ERRVAL PSEUDO_RET_NOERRNO
 
 #if defined NOT_IN_libc

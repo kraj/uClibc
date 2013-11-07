@@ -195,8 +195,6 @@ __x86.get_pc_thunk.reg:						      \
 #define	PSEUDO_END_ERRVAL(name) \
   END (name)
 
-#define ret_ERRVAL ret
-
 #ifndef __PIC__
 # define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 #else

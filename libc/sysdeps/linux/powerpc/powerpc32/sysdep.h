@@ -132,6 +132,7 @@
 
 #define PSEUDO_RET_ERRVAL						      \
     blr
+#undef ret_ERRVAL
 #define ret_ERRVAL PSEUDO_RET_ERRVAL
 
 #undef	PSEUDO_END_ERRVAL

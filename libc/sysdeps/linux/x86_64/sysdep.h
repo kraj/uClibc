@@ -182,8 +182,6 @@ lose:									      \
 # define PSEUDO_END_ERRVAL(name) \
   END (name)
 
-# define ret_ERRVAL ret
-
 # ifndef __PIC__
 #  define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 # elif defined(RTLD_PRIVATE_ERRNO)

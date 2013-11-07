@@ -19,7 +19,7 @@
 #ifndef _SYSDEP_H_
 #define _SYSDEP_H_
 
-#include <sys/syscall.h>
+#include <common/sysdep.h>
 
 #ifndef C_LABEL
 

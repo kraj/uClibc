@@ -20,6 +20,7 @@
 #ifndef _LINUX_IA64_SYSDEP_H
 #define _LINUX_IA64_SYSDEP_H 1
 
+#include <common/sysdep.h>
 #include <features.h>
 #include <asm/unistd.h>
 
@@ -169,7 +170,6 @@
 
 #define ret			br.ret.sptk.few b0
 #define ret_NOERRNO		ret
-#define ret_ERRVAL		ret
 
 #endif /* not __ASSEMBLER__ */
 

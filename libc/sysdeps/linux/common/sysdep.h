@@ -48,6 +48,8 @@
 #define JUMPTARGET(sym)		sym
 #endif
 
+#define ret_ERRVAL ret
+
 /* Macros to generate eh_frame unwind information.  */
 # ifdef HAVE_ASM_CFI_DIRECTIVES
 #  define cfi_sections(sect...) 	.cfi_sections sect

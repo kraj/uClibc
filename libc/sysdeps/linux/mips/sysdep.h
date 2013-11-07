@@ -77,8 +77,6 @@
 #undef PSEUDO_END_ERRVAL
 #define PSEUDO_END_ERRVAL(sym) .end sym; .size sym,.-sym
 
-#define ret_ERRVAL ret
-
 #define r0	v0
 #define r1	v1
 /* The mips move insn is d,s.  */
