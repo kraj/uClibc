@@ -27,6 +27,7 @@ help:
 	@echo '  menuconfig		- interactive curses-based configurator'
 	@echo '  oldconfig		- resolve any unresolved symbols in .config'
 	@echo '  silentoldconfig	- resolve any unresolved symbols in .config, silently'
+	@echo '  savedefconfig		- Save current config (minimal config)'
 	@echo '  randconfig		- generate a random .config'
 	@$(if $(arch-defconfigs), \
 		@echo ''; \
