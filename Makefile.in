@@ -168,6 +168,8 @@ $(target-headers-sysdep) $(pregen-headers-y): | $(top_builddir)include/bits $(to
 HEADERCLEAN_common:
 	$(do_rm) $(ALL_HEADERS_COMMON)
 headers_clean-y += HEADERCLEAN_common
+HEADERCLEAN_config:
+	$(do_rm) -r $(addprefix $(top_builddir)include/,config generated)
 
 # The headers. Arch specific headers are specified via ARCH_HEADERS in
 # libc/sysdeps/linux/$(TARGET_ARCH)/Makefile.arch which appends those via
