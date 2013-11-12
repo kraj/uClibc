@@ -794,7 +794,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 #endif
 		{
 # ifdef __SUPPORT_LD_DEBUG_EARLY__
-			unsigned int tmp = (unsigned int) tpnt->l_tls_initimage;
+			char *tmp = (char *) tpnt->l_tls_initimage;
 			tpnt->l_tls_initimage = (char *) tlsppnt->p_vaddr + tpnt->loadaddr;
 			_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n", tmp, tpnt->l_tls_initimage, tpnt->l_tls_initimage_size);
 			tmp = 0;

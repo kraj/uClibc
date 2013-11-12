@@ -751,8 +751,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * case the executable is actually an ET_DYN object.
 	 */
 	if (app_tpnt->l_tls_initimage != NULL) {
-		unsigned int tmp __attribute((unused)) =
-			(unsigned int) app_tpnt->l_tls_initimage;
+		char *tmp attribute_unused =
+			(char *) app_tpnt->l_tls_initimage;
 		app_tpnt->l_tls_initimage =
 			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
 		_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n",
