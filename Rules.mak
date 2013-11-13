@@ -201,7 +201,7 @@ check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
 check_ld=$(shell \
-	if $(LD) $(1) -o /dev/null -b binary /dev/null > /dev/null 2>&1; \
+	if $(CC) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; fi)
 
 # Use variable indirection here so that we can have variable
@@ -252,6 +252,8 @@ endef
 
 ARFLAGS:=cr
 
+# Note: The check for -nostdlib has to be before all calls to check_ld
+$(eval $(call check-gcc-var,-nostdlib))
 
 # Flags in OPTIMIZATION are used only for non-debug builds
 
@@ -557,11 +559,11 @@ endif
 # well as the LD PIE flag (below) because we can't rely on
 # gcc passing -pie if we used -fPIE. We need to directly use -pie
 # instead of -Wl,-pie as gcc picks up the wrong startfile/endfile
-$(eval $(call cache-output-var,LDPIEFLAG,$(LD) --help 2>/dev/null | grep -q -- -pie && echo "-pie"))
+$(eval $(call cache-output-var,LDPIEFLAG,$(CC) -Wl$(comma)--help 2>/dev/null | grep -q -- -pie && echo "-pie"))
 
 # Check for --as-needed support in linker
 ifndef LD_FLAG_ASNEEDED
-_LD_FLAG_ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -- --as-needed)
+_LD_FLAG_ASNEEDED:=$(shell $(CC) -Wl,--help 2>/dev/null | grep -- --as-needed)
 ifneq ($(_LD_FLAG_ASNEEDED),)
 export LD_FLAG_ASNEEDED:=--as-needed
 endif
@@ -585,7 +587,7 @@ link.asneeded = $(if $(findstring yy,$(CC_FLAG_ASNEEDED)$(CC_FLAG_NO_ASNEEDED)),
 
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
 ifndef ASNEEDED
-export ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && echo "AS_NEEDED ( $(UCLIBC_LDSO) )" || echo "$(UCLIBC_LDSO)")
+export ASNEEDED:=$(shell $(CC) -Wl,--help 2>/dev/null | grep -q -- --as-needed && echo "AS_NEEDED ( $(UCLIBC_LDSO) )" || echo "$(UCLIBC_LDSO)")
 
 # Only used in installed libc.so linker script
 ifeq ($(UCLIBC_HAS_BACKTRACE),y)
@@ -594,7 +596,7 @@ UBACKTRACE_FULL_NAME := $(subst //,/,$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(UBACKTRA
 else
 UBACKTRACE_FULL_NAME := $(UBACKTRACE_DSO)
 endif
-export UBACKTRACE_ASNEEDED:=$(shell $(LD) --help 2>/dev/null | grep -q -- --as-needed && \
+export UBACKTRACE_ASNEEDED:=$(shell $(CC) -Wl,--help 2>/dev/null | grep -q -- --as-needed && \
 	echo "GROUP ( AS_NEEDED ( $(UBACKTRACE_FULL_NAME) ) )" || \
 	echo "GROUP ( $(UBACKTRACE_FULL_NAME) )")
 else
@@ -640,8 +642,6 @@ SSP_ALL_CFLAGS ?= $(CFLAG_-fstack-protector-all)
 else
 SSP_CFLAGS := $(SSP_DISABLE_FLAGS)
 endif
-
-$(eval $(call check-gcc-var,-nostdlib))
 
 # Collect all CFLAGS components
 CFLAGS := $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
