@@ -32,7 +32,6 @@ if ! test -x "$top_builddir/extra/scripts/unifdef"; then
 	exit 1
 fi
 
-
 # Sanitize and copy uclibc headers
 (
 # We must cd, or else we'll prepend "${srcdir}" to filenames!
@@ -56,6 +55,9 @@ while read -r filename; do
 	# Do not abort the script if unifdef "fails"!
 	# NB2: careful with sed command arguments, they contain tab character
 	"$top_builddir/extra/scripts/unifdef" \
+		-B \
+		-t \
+		-f "$top_builddir/include/generated/unifdef_config.h" \
 		-U_LIBC \
 		-U__UCLIBC_GEN_LOCALE \
 		-U__NO_CTYPE \

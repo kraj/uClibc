@@ -67,6 +67,10 @@ MAKEFLAGS += -L
 $(top_builddir)include/config/linuxthreads/old.h $(top_builddir)include/config/linuxthreads/new.h:
 	@true
 
+$(top_builddir)include/generated/unifdef_config.h: $(top_builddir)include/bits/uClibc_config.h| $(top_builddir)include/generated
+	@$(disp_gen)
+	$(Q)$(SED) -e '1,3d' $^ > $@
+
 # For the moment, we have to keep re-running this target
 # because the fix includes scripts rely on pre-processers
 # in order to generate the headers correctly :(.  That
@@ -331,7 +335,9 @@ $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR):
 	$(do_mkdir)
 endif
 endif
-install_headers: headers $(top_builddir)extra/scripts/unifdef | $(PREFIX)$(DEVEL_PREFIX)include
+
+
+install_headers: headers $(top_builddir)extra/scripts/unifdef $(top_builddir)include/generated/unifdef_config.h | $(PREFIX)$(DEVEL_PREFIX)include
 	@$(call disp_install,"include -> $(PREFIX)$(DEVEL_PREFIX)include")
 	$(Q)top_builddir=$(top_builddir) \
 	$(top_srcdir)extra/scripts/install_headers.sh \
