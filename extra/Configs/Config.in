@@ -16,6 +16,7 @@ config VERSION
 choice
 	prompt "Target Architecture"
 	default TARGET_alpha if DESIRED_TARGET_ARCH = "alpha"
+	default TARGET_arc if DESIRED_TARGET_ARCH = "arc"
 	default TARGET_arm if DESIRED_TARGET_ARCH = "arm"
 	default TARGET_avr32 if DESIRED_TARGET_ARCH = "avr32"
 	default TARGET_bfin if DESIRED_TARGET_ARCH = "bfin"
@@ -46,6 +47,9 @@ choice
 
 config TARGET_alpha
 	bool "alpha"
+
+config TARGET_arc
+	bool "arc"
 
 config TARGET_arm
 	bool "arm"
@@ -236,6 +240,10 @@ endif
 
 if TARGET_c6x
 source "extra/Configs/Config.c6x"
+endif
+
+if TARGET_arc
+source "extra/Configs/Config.arc"
 endif
 
 config TARGET_SUBARCH

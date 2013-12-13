@@ -280,6 +280,7 @@ GCC_VER := $(subst ., ,$(GCC_VER))
 GCC_MAJOR_VER ?= $(word 1,$(GCC_VER))
 #GCC_MINOR_VER ?= $(word 2,$(GCC_VER))
 
+ifneq ($(TARGET_ARCH),arc)
 ifeq ($(GCC_MAJOR_VER),4)
 # shrinks code, results are from 4.0.2
 # 0.36%
@@ -292,7 +293,7 @@ OPTIMIZATION += $(CFLAG_-fno-tree-dominator-opts)
 $(eval $(call check-gcc-var,-fno-strength-reduce))
 OPTIMIZATION += $(CFLAG_-fno-strength-reduce)
 endif
-
+endif
 
 # CPU_CFLAGS-y contain options which are not warnings,
 # not include or library paths, and not optimizations.
@@ -549,6 +550,12 @@ ifeq ($(TARGET_ARCH),c6x)
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-mlittle-endian
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mbig-endian
 	CPU_LDFLAGS-y += $(CPU_CFLAGS)
+endif
+
+ifeq ($(TARGET_ARCH),arc)
+	CPU_CFLAGS-y += -mlock -mswape
+	CPU_CFLAGS-$(CONFIG_ARC_CPU_700) += -mA7
+	CPU_LDFLAGS-y += $(CPU_CFLAGS) -marclinux
 endif
 
 $(eval $(call check-gcc-var,$(PIEFLAG_NAME)))
