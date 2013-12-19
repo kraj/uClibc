@@ -496,7 +496,7 @@ defconfig: $(conf)   ; $(cmd_defconfig)
 %_defconfig: $(conf) ; $(cmd_defconfig)
 
 savedefconfig: $(conf)
-	$(Q)$< -S $(KCONFIG_CONFIG) $(Kconfig)
+	$(Q)$< -S defconfig $(Kconfig)
 listnewconfig: $(conf)
 	$(Q)$< -l $(Kconfig)
 olddefconfig: $(conf)
