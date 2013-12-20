@@ -66,7 +66,7 @@ extern void _dl_allocate_static_tls (struct link_map *map)
 /* Taken from glibc/elf/dl-reloc.c */
 #define CHECK_STATIC_TLS(sym_map)											\
 	do {																	\
-		if (__builtin_expect ((sym_map)->l_tls_offset == NO_TLS_OFFSET, 0))	\
+		if (unlikely((sym_map)->l_tls_offset == NO_TLS_OFFSET))	\
 			_dl_allocate_static_tls (sym_map);								\
 	} while (0)
 
