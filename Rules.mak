@@ -200,6 +200,7 @@ check_gcc=$(shell \
 check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
+# FIXME: filter -fuse-ld=% and pass that, too!!
 check_ld=$(shell \
 	if $(CC) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; fi)
