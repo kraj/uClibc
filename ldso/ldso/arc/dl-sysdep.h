@@ -14,43 +14,43 @@
 /*
  * Dynamic Linking ABI for ARCompact ISA
  *
- *		      PLT
- *	--------------------------------
- *	|  ld r11, [pcl, off-to-GOT[1]  |  0   (20 bytes)
- *	|				|  4
- * plt0	|  ld r10, [pcl, off-to-GOT[2]	|  8
- *	|				| 12
- *	|  j [r10]			| 16
- *	--------------------------------
- *	|    Base address of GOT	| 20
- *	--------------------------------
- *	|  ld r12, [pcl, off-to-GOT[3]  | 24   (12 bytes each)
- * plt1 |				|
- *	|  j_s.d  [r12]			| 32
- *	|  mov_s  r12, pcl		| 34
- *	--------------------------------
- *	|				| 36
- *	~				~
- *	~				~
- *	|				|
- *	--------------------------------
+ *                      PLT
+ *        --------------------------------
+ *        |  ld r11, [pcl, off-to-GOT[1] |  0   (20 bytes)
+ *        |                              |  4
+ * plt0   |  ld r10, [pcl, off-to-GOT[2] |  8
+ *        |                              | 12
+ *        |  j [r10]                     | 16
+ *        --------------------------------
+ *        |    Base address of GOT       | 20
+ *        --------------------------------
+ *        |  ld r12, [pcl, off-to-GOT[3] | 24   (12 bytes each)
+ * plt1   |                              |
+ *        |  j_s.d  [r12]                | 32
+ *        |  mov_s  r12, pcl             | 34
+ *        --------------------------------
+ *        |                              | 36
+ *        ~                              ~
+ *        ~                              ~
+ *        |                              |
+ *        --------------------------------
  *
- *	     GOT
- *	--------------
- *	|    [0]      |
- *	--------------
- *	|    [1]      |  Module info - setup by ldso
- *	--------------
- *	|    [2]      |  resolver entry point
- *	--------------
- *	|    [3]      |
- *	|    ...      |  Runtime address for function symbols
- *	|    [f]      |
- *	--------------
- *	|    [f+1]    |
- *	|    ...      |  Runtime address for data symbols
- *	|    [last]   |
- *	--------------
+ *             GOT
+ *        --------------
+ *        |    [0]     |
+ *        --------------
+ *        |    [1]     |  Module info - setup by ldso
+ *        --------------
+ *        |    [2]     |  resolver entry point
+ *        --------------
+ *        |    [3]     |
+ *        |    ...     |  Runtime address for function symbols
+ *        |    [f]     |
+ *        --------------
+ *        |    [f+1]   |
+ *        |    ...     |  Runtime address for data symbols
+ *        |    [last]  |
+ *        --------------
  */
 
 /*
