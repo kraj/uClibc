@@ -31,7 +31,7 @@ __asm__(
     "   mov_s   r0, sp          ; pass ptr to aux vector tbl    \n"
 
     "   ; If ldso ran as cmd with executable file nm as arg     \n"
-    "   ; as arg, skip the extra args calc by dl_start()        \n"
+    "   ; skip the extra args calc by dl_start()                \n"
     "   ld_s    r1, [sp]       ; orig argc from aux-vec Tbl     \n"
 #ifdef STAR_9000535888_FIXED
     "   ld      r12, [pcl, _dl_skip_args-.+(.&2)]               \n"

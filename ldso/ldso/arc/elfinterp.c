@@ -148,7 +148,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 log_entry:
 #if defined __SUPPORT_LD_DEBUG__
-	if(_dl_debug_detail)
+	if (_dl_debug_detail)
 		_dl_dprintf(_dl_debug_file,"\tpatched: %lx ==> %lx @ %pl: addend %x ",
 				old_val, *reloc_addr, reloc_addr, rpnt->r_addend);
 #endif
@@ -263,7 +263,7 @@ _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	 * On ARC, the loadaddr of dyn exec is zero, thus elfaddr == loadaddr
 	 * Thus there is no point in adding "0" to values and un-necessarily
 	 * stir up the caches and TLB.
-	 * For lsdo processing busybox binary, this skips over 380 relo entries
+	 * For ldso processing busybox binary, this skips over 380 relo entries
 	 */
 	if (rpnt->dyn->loadaddr != 0)
 		_dl_parse(rpnt->dyn, NULL, rel_addr, rel_size, ___DO_LAZY);

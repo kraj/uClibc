@@ -87,7 +87,7 @@ extern unsigned __udivmodsi4(unsigned, unsigned) attribute_hidden;
 	__extension__ ({						\
 		register unsigned r1 __asm__ ("r1") = (base);		\
 									\
-		__asm("bl.d @__udivmodsi4` mov r0,%1"			\
+		__asm__("bl.d @__udivmodsi4` mov r0,%1"			\
 		: "=r" (r1)						\
 	        : "r" (n), "r" (r1)					\
 	        : "r0", "r2", "r3", "r4", "lp_count", "blink", "cc");	\
