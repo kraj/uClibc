@@ -58,8 +58,11 @@ fresetlockfiles (void)
 }
 
 pid_t
-#if defined __arm__ && defined __thumb__ && __GNUC_PREREQ (4,6) && !__GNUC_PREREQ (4,8)
-/* GCC PR target/53735 */
+#if defined __arm__ && defined __thumb__ && __GNUC_PREREQ (4,6)
+/* GCC PR target/53735
+ * In thumb1 we run out of registers when compiling with Os so relax that
+ * to have more registers available for spilling by using O2 here.
+ */
 attribute_optimize("O2")
 #endif
 fork (void)
