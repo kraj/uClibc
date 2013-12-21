@@ -279,6 +279,8 @@ L(syse1):
 	_sys_result;							\
 })
 
+#if _MIPS_SIM == _ABIO32 || _MIPS_SIM == _ABIN32
+
 /* We need to use a frame pointer for the functions in which we
    adjust $sp around the syscall, or debug information and unwind
    information will be $sp relative and thus wrong during the syscall.  As
@@ -381,6 +383,67 @@ L(syse1):
 #undef __SYSCALL_CLOBBERS
 #define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
 	"$14", "$15", "$24", "$25", "memory"
+
+#else /* N64 */
+
+#undef internal_syscall5
+#define internal_syscall5(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5) \
+({ 									\
+	long _sys_result;						\
+									\
+	{								\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1; 	\
+	register long __a1 __asm__("$5") = (long) arg2; 	\
+	register long __a2 __asm__("$6") = (long) arg3; 	\
+	register long __a3 __asm__("$7") = (long) arg4; 	\
+	register long __a4 __asm__("$8") = (long) arg5; 	\
+	__asm__ __volatile__ ( 						\
+	".set\tnoreorder\n\t" 						\
+	cs_init								\
+	"syscall\n\t" 							\
+	".set\treorder" 						\
+	: "=r" (__v0), "+r" (__a3) 					\
+	: input, "r" (__a0), "r" (__a1), "r" (__a2), "r" (__a4)		\
+	: __SYSCALL_CLOBBERS); 						\
+	err = __a3;							\
+	_sys_result = __v0;						\
+	}								\
+	_sys_result;							\
+})
+
+#undef internal_syscall6
+#define internal_syscall6(ncs_init, cs_init, input, err, arg1, arg2, arg3, arg4, arg5, arg6) \
+({ 									\
+	long _sys_result;						\
+									\
+	{								\
+	register long __v0 __asm__("$2") ncs_init;			\
+	register long __a0 __asm__("$4") = (long) arg1; 	\
+	register long __a1 __asm__("$5") = (long) arg2; 	\
+	register long __a2 __asm__("$6") = (long) arg3; 	\
+	register long __a3 __asm__("$7") = (long) arg4; 	\
+	register long __a4 __asm__("$8") = (long) arg5; 	\
+	register long __a5 __asm__("$9") = (long) arg6; 	\
+	__asm__ __volatile__ ( 						\
+	".set\tnoreorder\n\t" 						\
+	cs_init								\
+	"syscall\n\t" 							\
+	".set\treorder" 						\
+	: "=r" (__v0), "+r" (__a3) 					\
+	: input, "r" (__a0), "r" (__a1), "r" (__a2), "r" (__a4),	\
+	  "r" (__a5)							\
+	: __SYSCALL_CLOBBERS); 						\
+	err = __a3;							\
+	_sys_result = __v0;						\
+	}								\
+	_sys_result;							\
+})
+
+#define __SYSCALL_CLOBBERS "$1", "$3", "$10", "$11", "$12", "$13", \
+	"$14", "$15", "$24", "$25", "hi", "lo", "memory"
+
+#endif
 
 /* Pointer mangling is not yet supported for MIPS.  */
 #define PTR_MANGLE(var) (void) (var)
