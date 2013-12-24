@@ -5,7 +5,6 @@
  */
 
 #include <features.h>
-#include <sysdep.h>
 
 .text
 
@@ -31,7 +30,12 @@
         env[0...N]      environment variables (pointers)
         NULL
 */
-ENTRY(__start)
+	.text
+	.align 4
+	.global __start
+	.hidden __start
+	.type __start,@function
+__start:
 	mov	fp, 0
 	ld_s	r1, [sp]	; argc
 
@@ -50,5 +54,4 @@ ENTRY(__start)
 
 	/* Should never get here....  */
 	flag    1
-END(__start)
-libc_hidden_def(__start)
+.size __start,.-__start
