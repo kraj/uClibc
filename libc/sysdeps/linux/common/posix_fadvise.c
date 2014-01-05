@@ -10,18 +10,25 @@
 
 #include <sys/syscall.h>
 
-#if defined(__NR_fadvise64) || defined(__NR_arm_fadvise64_64)
+#ifdef __NR_arm_fadvise64_64
+/* We handle the 64bit alignment issue which is why the arm guys renamed their
+ * syscall in the first place.  So rename it back.
+ */
+# define __NR_fadvise64_64 __NR_arm_fadvise64_64
+#endif
+
+#if defined(__NR_fadvise64) || defined(__NR_fadvise64_64)
 # include <fcntl.h>
 # include <endian.h>
 # include <bits/wordsize.h>
 
-# ifdef __NR_arm_fadvise64_64
+# ifdef __NR_fadvise64_64
 int posix_fadvise64(int fd, off64_t offset, off64_t len, int advice);
 # endif
 
 int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 {
-# ifdef __NR_arm_fadvise64_64
+# ifdef __NR_fadvise64_64
 	return posix_fadvise64(fd, offset, len, advice);
 # else
 	int ret;
@@ -41,7 +48,7 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 	return 0;
 #  endif
 }
-# if defined __UCLIBC_HAS_LFS__ && ((!defined __NR_fadvise64_64 && !defined __NR_arm_fadvise64_64) || __WORDSIZE == 64)
+# if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || __WORDSIZE == 64)
 strong_alias(posix_fadvise,posix_fadvise64)
 # endif
 #endif
