@@ -1097,12 +1097,14 @@ skiphash(void)
 {
 	const char *cp;
 
-	linenum++;
-	if (linestate == LS_START && fgets(tline, MAXLINE, input) == NULL) {
-		if (ferror(input))
-			err(2, "can't read %s", filename);
-		else
-			return (NULL);
+	if (linestate == LS_START) {
+		linenum++;
+		if (fgets(tline, MAXLINE, input) == NULL) {
+			if (ferror(input))
+				err(2, "can't read %s", filename);
+			else
+				return (NULL);
+		}
 	}
 	cp = skipcomment(tline);
 	if (linestate == LS_START && *cp == '#') {
