@@ -1098,7 +1098,7 @@ skiphash(void)
 	const char *cp;
 
 	linenum++;
-	if (fgets(tline, MAXLINE, input) == NULL) {
+	if (linestate == LS_START && fgets(tline, MAXLINE, input) == NULL) {
 		if (ferror(input))
 			err(2, "can't read %s", filename);
 		else
@@ -1458,9 +1458,7 @@ static bool
 defundef(void)
 {
 	const char *cp, *kw, *sym, *val, *end;
-	Comment_state wascomment;
 
-	wascomment = incomment;
 	cp = skiphash();
 	if (cp == NULL)
 		return (false);

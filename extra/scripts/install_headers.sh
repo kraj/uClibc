@@ -64,7 +64,7 @@ while read -r filename; do
 		"${srcdir}/$filename" \
 	| sed -e '/^rtld_hidden_proto[ 	]*([a-zA-Z0-9_]*)$/d' \
 	| sed -e '/^lib\(c\|m\|resolv\|dl\|intl\|rt\|nsl\|util\|crypt\|pthread\)_hidden_proto[ 	]*([a-zA-Z0-9_]*)$/d' \
-	>"${dstdir}/$filename"
+	> "${dstdir}/$filename"
 done
 )
 

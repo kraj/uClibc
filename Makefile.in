@@ -67,7 +67,7 @@ MAKEFLAGS += -L
 $(top_builddir)include/config/linuxthreads/old.h $(top_builddir)include/config/linuxthreads/new.h:
 	@true
 
-$(top_builddir)include/generated/unifdef_config.h: $(top_builddir)include/bits/uClibc_config.h| $(top_builddir)include/generated
+$(top_builddir)include/generated/unifdef_config.h: $(top_builddir)include/bits/uClibc_config.h | $(top_builddir)include/generated
 	@$(disp_gen)
 	$(Q)$(SED) -e '1,3d' $^ > $@
 
