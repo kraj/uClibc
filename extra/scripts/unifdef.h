@@ -37,6 +37,7 @@
 /* Avoid err.h since this are non-standard BSD extensions */
 #define vwarnx(fmt, args)   ({ fprintf(stderr, "unifdef: "); vfprintf(stderr, fmt, args); fprintf(stderr, "\n"); })
 #define warnx(fmt, args...) fprintf(stderr, "unifdef: " fmt "\n", ## args)
+#define warn(fmt, args...)  warnx(fmt ": %s", ## args, strerror(errno))
 #define errx(exit_code, fmt, args...) ({ warnx(fmt, ## args); exit(exit_code); })
 #define err(exit_code, fmt, args...)  errx(exit_code, fmt ": %s", ## args, strerror(errno))
 

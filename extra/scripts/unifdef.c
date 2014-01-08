@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002 - 2013 Tony Finch <dot@dotat.at>
+ * Copyright (c) 2002 - 2014 Tony Finch <dot@dotat.at>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -207,6 +207,7 @@ static bool             firstsym;		/* ditto */
 
 static int              exitmode;		/* exit status mode */
 static int              exitstat;		/* program exit status */
+static bool             altered;		/* was this file modified? */
 
 static void             addsym1(bool, bool, char *);
 static void             addsym2(bool, const char *, const char *);
@@ -415,7 +416,11 @@ processinout(const char *ifn, const char *ofn)
 			err(2, "can't rename \"%s\" to \"%s\"", ofn, backname);
 		free(backname);
 	}
-	if (replace(tempname, ofn) < 0)
+	/* leave file unmodified if unifdef made no changes */
+	if (!altered && backext == NULL) {
+		if (remove(tempname) < 0)
+			warn("can't remove \"%s\"", tempname);
+	} else if (replace(tempname, ofn) < 0)
 		err(2, "can't rename \"%s\" to \"%s\"", tempname, ofn);
 	free(tempname);
 	tempname = NULL;
@@ -637,6 +642,7 @@ keywordedit(const char *replacement)
 {
 	snprintf(keyword, tline + sizeof(tline) - keyword,
 	    "%s%s", replacement, newline);
+	altered = true;
 	print();
 }
 static void
@@ -699,7 +705,7 @@ flushline(bool keep)
 	} else {
 		if (lnblank && fputs(newline, output) == EOF)
 			closeio();
-		exitstat = 1;
+		altered = true;
 		delcount += 1;
 		blankcount = 0;
 	}
@@ -751,6 +757,7 @@ process(void)
 	zerosyms = true;
 	newline = NULL;
 	linenum = 0;
+	altered = false;
 	while (lineval != LT_EOF) {
 		lineval = parseline();
 		trans_table[ifstate[depth]][lineval]();
@@ -758,6 +765,7 @@ process(void)
 		    linenum, linetype_name[lineval],
 		    ifstate_name[ifstate[depth]], depth);
 	}
+	exitstat |= altered;
 }
 
 /*
@@ -1097,14 +1105,12 @@ skiphash(void)
 {
 	const char *cp;
 
-	if (linestate == LS_START) {
-		linenum++;
-		if (fgets(tline, MAXLINE, input) == NULL) {
-			if (ferror(input))
-				err(2, "can't read %s", filename);
-			else
-				return (NULL);
-		}
+	linenum++;
+	if (fgets(tline, MAXLINE, input) == NULL) {
+		if (ferror(input))
+			err(2, "can't read %s", filename);
+		else
+			return (NULL);
 	}
 	cp = skipcomment(tline);
 	if (linestate == LS_START && *cp == '#') {
@@ -1124,7 +1130,8 @@ skiphash(void)
 static const char *
 skipline(const char *cp)
 {
-	linestate = LS_DIRTY;
+	if (*cp != '\0')
+		linestate = LS_DIRTY;
 	while (*cp != '\0')
 		cp = skipcomment(cp + 1);
 	return (cp);
