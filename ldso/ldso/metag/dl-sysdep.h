@@ -31,11 +31,6 @@
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry);
 
-/* Variable page size. */
-#define ADDR_ALIGN (_dl_pagesize - 1)
-#define PAGE_ALIGN (~ADDR_ALIGN)
-#define OFFS_ALIGN (PAGE_ALIGN & ~(1ul << (sizeof(_dl_pagesize) * 8 - 1)))
-
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
    TLS variable, so undefined references should not be allowed to
    define the value.
