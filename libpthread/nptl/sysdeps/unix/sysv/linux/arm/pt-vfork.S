@@ -34,4 +34,4 @@
 	cmp	r0, #0;			/* If we are the parent... */	\
 	strne	r3, [r2, #PID_OFFSET]	/* ... restore the saved PID.  */
 
-#INCLUDE <../../../../../../../LIBC/SYSDEPS/LINUX/ARM/VFORK.S>
+#include "../../../../../../../libc/sysdeps/linux/arm/vfork.S"
