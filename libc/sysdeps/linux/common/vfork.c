@@ -6,7 +6,7 @@
 
 #include <sys/syscall.h>
 
-#if (defined __NR_vfork || (defined __ARCH_USE_MMU__ && defined __NR_fork)) && (defined __USE_BSD || defined __USE_XOPEN_EXTENDED)
+#if (defined __NR_vfork || defined __NR_clone || (defined __ARCH_USE_MMU__ && defined __NR_fork)) && (defined __USE_BSD || defined __USE_XOPEN_EXTENDED)
 # include <unistd.h>
 extern __typeof(vfork) __vfork attribute_hidden;
 
@@ -20,12 +20,10 @@ pid_t __vfork(void)
 				   NULL, NULL, NULL);
 
 	if (pid < 0)
-		return -1
+		return -1;
 
 	return pid;
 }
-weak_alias(__vfork, vfork)
-libc_hidden_weak(vfork)
 
 # elif defined __NR_vfork
 #  define __NR___vfork __NR_vfork
