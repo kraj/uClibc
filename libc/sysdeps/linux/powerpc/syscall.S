@@ -29,6 +29,7 @@ syscall:
 	mr 5,6
 	mr 6,7
 	mr 7,8
+	mr 8,9
 	sc
 	bnslr;
 
