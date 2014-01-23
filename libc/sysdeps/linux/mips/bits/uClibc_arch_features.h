@@ -4,6 +4,7 @@
 
 #ifndef _BITS_UCLIBC_ARCH_FEATURES_H
 #define _BITS_UCLIBC_ARCH_FEATURES_H
+#include <sgidefs.h>
 
 /* instruction used when calling abort() to kill yourself */
 #define __UCLIBC_ABORT_INSTRUCTION__ "break 255"
