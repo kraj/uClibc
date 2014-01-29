@@ -135,22 +135,22 @@ typedef uintmax_t uatomic_max_t;
 /* For all "bool" routines, we return FALSE if exchange succesful.  */
 
 #define __arch_compare_and_exchange_bool_8_int(mem, new, old, rel, acq)	\
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_8_int(mem, new, old, rel, acq);	\
    !__cmp; })
 
 #define __arch_compare_and_exchange_bool_16_int(mem, new, old, rel, acq) \
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_16_int(mem, new, old, rel, acq);	\
    !__cmp; })
 
 #define __arch_compare_and_exchange_bool_32_int(mem, new, old, rel, acq) \
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_32_int(mem, new, old, rel, acq);	\
    !__cmp; })
 
 #define __arch_compare_and_exchange_bool_64_int(mem, new, old, rel, acq) \
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_64_int(mem, new, old, rel, acq);	\
    !__cmp; })
 
@@ -158,22 +158,22 @@ typedef uintmax_t uatomic_max_t;
    successful or not.  */
 
 #define __arch_compare_and_exchange_val_8_int(mem, new, old, rel, acq)	\
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_8_int(mem, new, old, rel, acq);	\
    (__typeof (*mem))__prev; })
 
 #define __arch_compare_and_exchange_val_16_int(mem, new, old, rel, acq) \
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_16_int(mem, new, old, rel, acq);	\
    (__typeof (*mem))__prev; })
 
 #define __arch_compare_and_exchange_val_32_int(mem, new, old, rel, acq) \
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_32_int(mem, new, old, rel, acq);	\
    (__typeof (*mem))__prev; })
 
 #define __arch_compare_and_exchange_val_64_int(mem, new, old, rel, acq) \
-({ __typeof (*mem) __prev; int __cmp;					\
+({ __typeof (*mem) __prev attribute_unused; int __cmp;		\
    __arch_compare_and_exchange_xxx_64_int(mem, new, old, rel, acq);	\
    (__typeof (*mem))__prev; })
 
