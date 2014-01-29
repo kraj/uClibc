@@ -25,13 +25,19 @@
 
 #include <sgidefs.h>
 
+#if _MIPS_SIM == _MIPS_SIM_ABI32
+#define ptrsize void *
+#else
+#define ptrsize long long
+#endif
+
 typedef struct
   {
     /* Program counter.  */
-    void * __pc;
+    ptrsize __pc;
 
     /* Stack pointer.  */
-    void * __sp;
+    ptrsize __sp;
 
     /* Callee-saved registers s0 through s7.  */
 #if _MIPS_SIM == _MIPS_SIM_ABI32
@@ -41,10 +47,10 @@ typedef struct
 #endif
 
     /* The frame pointer.  */
-    void * __fp;
+    ptrsize __fp;
 
     /* The global pointer.  */
-    void * __gp;
+    ptrsize __gp;
 
     /* Floating point status register.  */
     int __fpc_csr;

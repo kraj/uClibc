@@ -52,6 +52,7 @@ __sigsetjmp:
 	PTR_LA	t9, __sigsetjmp_aux
 #if _MIPS_SIM != _MIPS_SIM_ABI32
 	.cpreturn
+	move 	a4, gp
 #endif
 	jr	t9
 #else

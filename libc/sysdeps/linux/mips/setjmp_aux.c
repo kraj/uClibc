@@ -28,7 +28,7 @@
 
 int
 #if _MIPS_SIM == _MIPS_SIM_ABI64
-__sigsetjmp_aux (jmp_buf env, int savemask, long sp, long fp)
+__sigsetjmp_aux (jmp_buf env, int savemask, long long sp, long long fp, long long gp)
 #else /* O32 || N32 */
 __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 #endif /* O32 || N32 */
@@ -62,14 +62,14 @@ __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 #endif
 
   /* .. and the stack pointer;  */
-  env[0].__jmpbuf[0].__sp = (void *) sp;
+  env[0].__jmpbuf[0].__sp = (ptrsize) sp;
 
   /* .. and the FP; it'll be in s8. */
-  env[0].__jmpbuf[0].__fp = (void *) fp;
+  env[0].__jmpbuf[0].__fp = (ptrsize) fp;
 
   /* .. and the GP; */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
-  __asm__ __volatile__ ("sd $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
+  env[0].__jmpbuf[0].__gp = (ptrsize) gp;
 #else
   __asm__ __volatile__ ("sw $gp, %0" : : "m" (env[0].__jmpbuf[0].__gp));
 #endif
