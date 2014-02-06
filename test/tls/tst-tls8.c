@@ -41,13 +41,12 @@ do_test (void)
 	 time.  The value of the first round is used.  */
 #ifdef __UCLIBC__
       if (modid1 == (size_t) -1)
-	modid1 = ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid;
-      else if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
-        != (size_t) modid1)
+	modid1 = ((struct dyn_elf *) h1)->dyn->l_tls_modid;
+      else if (((struct dyn_elf *)h1)->dyn->l_tls_modid != (size_t) modid1)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
 		  i,
-		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  ((struct dyn_elf *)h1)->dyn->l_tls_modid,
 		  modid1);
 	  result = 1;
 	}
@@ -85,23 +84,23 @@ do_test (void)
 	 time.  The value of the first round is used.  */
 #ifdef __UCLIBC__
       if (modid2 == (size_t) -1)
-	modid2 = ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid;
-      else if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
+	modid2 = ((struct dyn_elf *)h2)->dyn->l_tls_modid;
+      else if (((struct dyn_elf *)h2)->dyn->l_tls_modid
         != (size_t) modid2)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
 		  i,
-		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  ((struct dyn_elf *)h2)->dyn->l_tls_modid,
 		  modid2);
 	  result = 1;
 	}
 #else
       if (modid2 == (size_t) -1)
-	modid2 = ((struct link_map *) h1)->l_tls_modid;
-      else if (((struct link_map *) h1)->l_tls_modid != modid2)
+	modid2 = ((struct link_map *) h2)->l_tls_modid;
+      else if (((struct link_map *) h2)->l_tls_modid != modid2)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
-		  i, ((struct link_map *) h1)->l_tls_modid, modid2);
+		  i, ((struct link_map *) h2)->l_tls_modid, modid2);
 	  result = 1;
 	}
 #endif
@@ -139,12 +138,12 @@ do_test (void)
 	 We make sure that the module gets assigned the same ID every
 	 time.  The value of the first round is used.  */
 #ifdef __UCLIBC__
-      if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
+      if (((struct dyn_elf *)h1)->dyn->l_tls_modid
         != modid1)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
 		  i,
-		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  ((struct dyn_elf *)h1)->dyn->l_tls_modid,
 		  modid1);
 	  result = 1;
 	}
@@ -179,20 +178,20 @@ do_test (void)
 	 We make sure that the module gets assigned the same ID every
 	 time.  The value of the first round is used.  */
 #ifdef __UCLIBC__
-      if (((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid
+      if (((struct dyn_elf *)h2)->dyn->l_tls_modid
         != modid2)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
 		  i,
-		  ((struct link_map *)((struct dyn_elf *)h1)->dyn)->l_tls_modid,
+		  ((struct dyn_elf *)h2)->dyn->l_tls_modid,
 		  modid2);
 	  result = 1;
 	}
 #else
-      if (((struct link_map *) h1)->l_tls_modid != modid2)
+      if (((struct link_map *) h2)->l_tls_modid != modid2)
 	{
 	  printf ("round %d: modid now %zd, initially %zd\n",
-		  i, ((struct link_map *) h1)->l_tls_modid, modid2);
+		  i, ((struct link_map *) h2)->l_tls_modid, modid2);
 	  result = 1;
 	}
 #endif

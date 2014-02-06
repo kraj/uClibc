@@ -36,13 +36,12 @@ do_test (void)
 	 time.  The value of the first round is used.  */
 #ifdef __UCLIBC__
       if (modid == -1)
-	modid = ((struct link_map *)((struct dyn_elf *)h)->dyn)->l_tls_modid;
-      else if (((struct link_map *)((struct dyn_elf *)h)->dyn)->l_tls_modid
-        != (size_t) modid)
+	modid = ((struct dyn_elf *) h)->dyn->l_tls_modid;
+      else if (((struct dyn_elf *)h)->dyn->l_tls_modid != (size_t) modid)
 	{
 	  printf ("round %d: modid now %zu, initially %d\n",
 		  i,
-		  ((struct link_map *)((struct dyn_elf *)h)->dyn)->l_tls_modid,
+		  ((struct dyn_elf *)h)->dyn->l_tls_modid,
 		  modid);
 	  result = 1;
 	}
