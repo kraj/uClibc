@@ -72,4 +72,7 @@ config CONFIG_MIPS_ISA_MIPS32R2
 config CONFIG_MIPS_ISA_MIPS64
 	bool "MIPS64"
 
+config CONFIG_MIPS_ISA_MIPS64R2
+	bool "MIPS64r2"
+
 endchoice
