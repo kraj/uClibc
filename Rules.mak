@@ -200,9 +200,8 @@ check_gcc=$(shell \
 check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
-# FIXME: filter -fuse-ld=% and pass that, too!!
 check_ld=$(shell \
-	if $(CC) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
+	if $(CC) $(LDFLAG-fuse-ld) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; fi)
 
 # Use variable indirection here so that we can have variable
@@ -255,6 +254,8 @@ ARFLAGS:=cr
 
 # Note: The check for -nostdlib has to be before all calls to check_ld
 $(eval $(call check-gcc-var,-nostdlib))
+LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(EXTRA_UCLIBC_FLAGS))
+# deliberately not named CFLAG-fuse-ld since unchecked and from user
 
 # Flags in OPTIMIZATION are used only for non-debug builds
 
@@ -672,7 +673,7 @@ endif
 $(eval $(call check-ld-var,--warn-once))
 $(eval $(call check-ld-var,--sort-common))
 $(eval $(call check-ld-var,--discard-all))
-LDFLAGS_NOSTRIP:=$(CPU_LDFLAGS-y) -shared \
+LDFLAGS_NOSTRIP:=$(LDFLAG-fuse-ld) $(CPU_LDFLAGS-y) -shared \
 	-Wl,--warn-common $(CFLAG_-Wl--warn-once) -Wl,-z,combreloc
 # binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
 #$(eval $(call check-ld-var,--gc-sections))
