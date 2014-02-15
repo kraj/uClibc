@@ -577,7 +577,7 @@ fts_build(register FTS *sp, int type)
 	FTSENT *cur, *tail;
 	DIR *dirp;
 	void *oldaddr;
-	int cderrno, descend, len, level, nlinks, saved_errno,
+	int /*cderrno,*/ descend, len, level, nlinks, saved_errno,
 	    nostat, doadjust;
 	size_t maxlen;
 	char *cp;
@@ -642,14 +642,14 @@ fts_build(register FTS *sp, int type)
 	 * needed sorted entries or stat information, they had better be
 	 * checking FTS_NS on the returned nodes.
 	 */
-	cderrno = 0;
+	/* cderrno = 0; */
 	if (nlinks || type == BREAD) {
 		if (fts_safe_changedir(sp, cur, dirfd(dirp), NULL)) {
 			if (nlinks && type == BREAD)
 				cur->fts_errno = errno;
 			cur->fts_flags |= FTS_DONTCHDIR;
 			descend = 0;
-			cderrno = errno;
+			/* cderrno = errno; */
 			(void)closedir(dirp);
 			dirp = NULL;
 		} else
