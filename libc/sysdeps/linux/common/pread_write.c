@@ -43,8 +43,15 @@ extern __typeof(pwrite64) __libc_pwrite64;
 #include <bits/kernel_types.h>
 
 # define __NR___syscall_pread __NR_pread
+
+#if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+static __inline__ _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf,
+		 size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
+# define __syscall_pread(fd, buf, count, ...) __syscall_pread(fd, buf, count, 0, __VA_ARGS__)
+#else
 static __inline__ _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
 		size_t, count, off_t, offset_hi, off_t, offset_lo)
+#endif
 
 ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 {
@@ -75,8 +82,14 @@ weak_alias(__libc_pread64,pread64)
 #endif
 
 # define __NR___syscall_pwrite __NR_pwrite
+#if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+static __inline__ _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
+		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
+# define __syscall_pwrite(fd, buf, count, ...) __syscall_pwrite(fd, buf, count, 0, __VA_ARGS__)
+#else
 static __inline__ _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
 		size_t, count, off_t, offset_hi, off_t, offset_lo)
+#endif
 
 ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
