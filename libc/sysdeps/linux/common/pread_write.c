@@ -42,7 +42,7 @@ extern __typeof(pwrite64) __libc_pwrite64;
 
 #include <bits/kernel_types.h>
 
-# define __NR___syscall_pread __NR_pread64
+# define __NR___syscall_pread __NR_pread
 static __inline__ _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
 		size_t, count, off_t, offset_hi, off_t, offset_lo)
 
