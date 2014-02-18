@@ -25,7 +25,8 @@ EXTRA_LDFLAGS   := -lm
 
 PERL := /usr/bin/perl
 
-$(TESTS): libm-test.c
+MDEPS := $(wildcard test-*.c)
+$(MDEPS): libm-test.c
 
 libm-test.c: libm-test-ulps-$(TARGET_ARCH) libm-test.inc gen-libm-test.pl
 	$(Q)$(PERL) ./gen-libm-test.pl -u libm-test-ulps-$(TARGET_ARCH) ./libm-test.inc -o "." 2>&1 > /dev/null
