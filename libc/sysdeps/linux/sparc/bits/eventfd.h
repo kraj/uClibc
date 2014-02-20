@@ -22,7 +22,7 @@
 /* Flags for eventfd.  */
 enum
   {
-    EFD_SEMAPHORE = 1,
+    EFD_SEMAPHORE = 0x000001,
 #define EFD_SEMAPHORE EFD_SEMAPHORE
     EFD_CLOEXEC = 0x400000,
 #define EFD_CLOEXEC EFD_CLOEXEC
