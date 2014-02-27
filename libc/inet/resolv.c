@@ -1471,9 +1471,11 @@ int __dns_lookup(const char *name,
 				}
 				/* no more search domains to try */
 			}
-			/* dont loop, this is "no such host" situation */
-			h_errno = HOST_NOT_FOUND;
-			goto fail1;
+			if (h.rcode != SERVFAIL) {
+				/* dont loop, this is "no such host" situation */
+				h_errno = HOST_NOT_FOUND;
+				goto fail1;
+			}
 		}
 		/* Insert other non-fatal errors here, which do not warrant
 		 * switching to next nameserver */
