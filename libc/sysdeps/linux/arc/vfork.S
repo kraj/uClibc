@@ -15,7 +15,7 @@
 #define CLONE_VFORK		0x00004000
 #define CLONE_FLAGS_FOR_VFORK	(CLONE_VM|CLONE_VFORK|SIGCHLD)
 
-ENTRY(vfork)
+ENTRY(__vfork)
 	mov	r0, CLONE_FLAGS_FOR_VFORK
 	mov_s	r1, sp
 	mov	r8, __NR_clone
@@ -25,5 +25,7 @@ ENTRY(vfork)
 	jge	[blink]	; pid >=0 return, else detour via tailcall to errno
 
 	b   __syscall_error
-END(vfork)
+END(__vfork)
+
+weak_alias(__vfork,vfork)
 libc_hidden_def(vfork)
