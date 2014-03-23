@@ -11,6 +11,7 @@
 __asm__ (
     "	.text\n"
     "	.align  4\n"
+    "	.literal_position\n"
     "	.global _start\n"
     "	.type   _start, @function\n"
     "	.hidden _start\n"

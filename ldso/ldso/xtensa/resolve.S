@@ -27,6 +27,7 @@
 
 	.text
 	.align	4
+	.literal_position
 	.global	_dl_linux_resolve
 	.type	_dl_linux_resolve, @function
 _dl_linux_resolve:

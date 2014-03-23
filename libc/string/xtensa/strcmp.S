@@ -34,13 +34,14 @@
 
 #define MASK4 0x40404040
 
+	.text
+	.align 4
+	.literal_position
 	.literal .Lmask0, MASK0
 	.literal .Lmask1, MASK1
 	.literal .Lmask2, MASK2
 	.literal .Lmask3, MASK3
 	.literal .Lmask4, MASK4
-
-	.text
 ENTRY (strcmp)
 	/* a2 = s1, a3 = s2 */
 
