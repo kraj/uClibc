@@ -28,7 +28,14 @@ PERL := /usr/bin/perl
 MDEPS := $(wildcard test-*.c)
 $(MDEPS): libm-test.c
 
-libm-test.c: libm-test-ulps-$(TARGET_ARCH) libm-test.inc gen-libm-test.pl
-	$(Q)$(PERL) ./gen-libm-test.pl -u libm-test-ulps-$(TARGET_ARCH) ./libm-test.inc -o "." 2>&1 > /dev/null
+TARGET_ULP := $(TARGET_ARCH)
+ULP_SUFFIX :=
+ifeq ($(TARGET_ARCH),mips)
+ULP_SUFFIX:=$(if $(CONFIG_MIPS_ISA_MIPS64R1)$(CONFIG_MIPS_ISA_MIPS64R2),64,32)
+endif
+TARGET_ULP:=$(TARGET_ULP)$(ULP_SUFFIX)
+
+libm-test.c: libm-test-ulps-$(TARGET_ULP) libm-test.inc gen-libm-test.pl
+	$(Q)$(PERL) ./gen-libm-test.pl -u libm-test-ulps-$(TARGET_ULP) ./libm-test.inc -o "." 2>&1 > /dev/null
 
 EXTRA_CLEAN := libm-test.c libm-test-ulps.h
