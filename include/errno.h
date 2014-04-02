@@ -47,7 +47,9 @@ extern int errno;
 #endif
 
 #ifdef _LIBC
+# ifdef __UCLIBC_HAS___PROGNAME__
 extern const char *__progname, *__progname_full;
+# endif
 #endif
 #if defined __USE_GNU && defined __UCLIBC_HAS_PROGRAM_INVOCATION_NAME__
 
