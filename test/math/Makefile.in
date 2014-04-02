@@ -1,8 +1,11 @@
 # uClibc math tests
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
+# libm-test.c is a generated file used by the tests internally so skip it
+TESTS_DISABLED := libm-test
+
 # gamma (removed from TESTS, need to add "small errors are ok" machinery there)
-TESTS_DISABLED := gamma
+TESTS_DISABLED += gamma
 ifeq ($(UCLIBC_HAS_LONG_DOUBLE_MATH),)
 TESTS_DISABLED += test-ldouble test-ildoubl compile_test c99_test
 else
