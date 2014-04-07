@@ -526,8 +526,8 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 #ifdef __LDSO_STANDALONE_SUPPORT__
 	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
-		unsigned int *aux_dat = (unsigned int *) argv;
-		int argc = aux_dat[-1];
+		int argc = (int) aux_dat[-1];
+		ElfW(Addr) *aux_dat = (ElfW(Addr) *) argv;
 
 		tpnt->libname = argv[0];
 		while (argc > 1)
