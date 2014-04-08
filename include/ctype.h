@@ -404,8 +404,8 @@ __END_DECLS
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
 
-/* We define {__,}isascii for internal use only */
 #if defined _LIBC && !defined __UCLIBC_SUSV4_LEGACY__
+/* We define {__,}isascii for internal use only */
 # define __isascii(c) (((c) & ~0x7f) == 0)
 # define isascii(c) __isascii (c)
 #endif
