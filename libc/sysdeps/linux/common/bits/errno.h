@@ -42,9 +42,6 @@
 # ifndef __ASSEMBLER__
 /* Function to get address of global `errno' variable.  */
 extern int *__errno_location (void) __THROW __attribute__ ((__const__));
-#  ifdef _LIBC
-extern int weak_const_function *__errno_location(void);
-#  endif
 
 #  ifdef __UCLIBC_HAS_THREADS__
 /* When using threads, errno is a per-thread value.  */

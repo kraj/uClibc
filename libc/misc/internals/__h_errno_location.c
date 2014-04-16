@@ -12,7 +12,7 @@
 extern int h_errno;
 #endif
 
-int *__h_errno_location(void)
+int weak_const_function *__h_errno_location(void)
 {
     return &h_errno;
 }
