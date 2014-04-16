@@ -59,11 +59,8 @@ __BEGIN_DECLS
 /* Function to get address of global `h_errno' variable.  */
 extern int *__h_errno_location (void) __THROW __attribute__ ((__const__));
 #ifdef _LIBC
-# if !defined(__UCLIBC_HAS_TLS__) && !defined(__UCLIBC_HAS_THREADS__)
 extern int weak_const_function *__h_errno_location(void);
-# endif
 #endif
-libc_hidden_proto(__h_errno_location)
 
 /* Macros for accessing h_errno from inside libc.  */
 #ifdef _LIBC

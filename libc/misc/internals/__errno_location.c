@@ -16,4 +16,3 @@ int *__errno_location(void)
 {
     return &errno;
 }
-libc_hidden_weak(__errno_location)
