@@ -325,11 +325,11 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				_dl_exit(1);
 			}
 		}
-	}
 #if defined (__SUPPORT_LD_DEBUG__)
-	if (_dl_debug_reloc && _dl_debug_detail && reloc_addr)
-		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n", old_val, *reloc_addr, reloc_addr);
+		if (_dl_debug_reloc && _dl_debug_detail && reloc_addr)
+			_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n", old_val, *reloc_addr, reloc_addr);
 #endif
+	}
 
 	return 0;
 }
