@@ -22,6 +22,7 @@
 #include <pthread-errnos.h>
 #include <pthread-pi-defines.h>
 #include <bits/kernel-features.h>
+#include <tcb-offsets.h>
 
 
 	.text
