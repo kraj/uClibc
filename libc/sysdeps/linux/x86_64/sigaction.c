@@ -111,11 +111,19 @@ libc_hidden_weak(sigaction)
    signal handlers work right.  Important are both the names
    (__restore_rt) and the exact instruction sequence.
    If you ever feel the need to make any changes, please notify the
-   appropriate GDB maintainer.  */
+   appropriate GDB maintainer.
+
+   The unwind information starts a byte before __restore_rt, so that
+   it is found when unwinding, to get an address the unwinder assumes
+   will be in the middle of a call instruction.  See the Linux kernel
+   (the i386 vsyscall, in particular) for an explanation of the complex
+   unwind information used here in order to get the traditional CFA.
+ */
 
 #define RESTORE(name, syscall) RESTORE2(name, syscall)
 #define RESTORE2(name, syscall) \
 __asm__ (						\
+	"nop\n"						\
 	".text\n"					\
 	"__" #name ":\n"				\
 	"	movq	$" #syscall ", %rax\n"		\
