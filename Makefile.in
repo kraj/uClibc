@@ -251,6 +251,8 @@ HEADERS_RM- := \
 	bits/uClibc_va_copy.h \
 	bits/sigcontextinfo.h \
 	bits/stackinfo.h \
+	atomic.h \
+	bits/atomic.h \
 	tls.h \
 	rpc/des_crypt.h \
 	rpc/key_prot.h \
