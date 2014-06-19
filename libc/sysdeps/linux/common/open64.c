@@ -5,6 +5,7 @@
  */
 
 #include <_lfs_64.h>
+#include <sys/syscall.h>
 #include <fcntl.h>
 #include <stdarg.h>
 #include <cancel.h>
