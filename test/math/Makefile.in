@@ -31,7 +31,7 @@ PERL := /usr/bin/perl
 MDEPS := $(wildcard test-*.c)
 $(MDEPS): libm-test.c
 
-TARGET_ULP := $(TARGET_ARCH)
+TARGET_ULP := $(if $(wildcard libm-test-ulps-$(TARGET_ARCH)),$(TARGET_ARCH),generic)
 ULP_SUFFIX :=
 ifeq ($(TARGET_ARCH),mips)
 ULP_SUFFIX:=$(if $(CONFIG_MIPS_ISA_MIPS64R1)$(CONFIG_MIPS_ISA_MIPS64R2),64,32)
