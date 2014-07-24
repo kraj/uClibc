@@ -1,4 +1,4 @@
-0.9.31  not yet released
+0.9.31  2 April 2010
 
     Upgrade notices from previous versions.
     o On x86_64 the format of /var/run/utmp changed compared to previous
