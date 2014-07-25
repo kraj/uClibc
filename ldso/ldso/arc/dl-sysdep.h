@@ -96,12 +96,15 @@ extern unsigned __udivmodsi4(unsigned, unsigned) attribute_hidden;
 	})								\
 )
 
-/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
-   PLT entries should not be allowed to define the value.
+/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
+   TLS variable so PLT entries should not be allowed to define the value.
+
    ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
    of the main executable's symbols, as for a COPY reloc.  */
 #define elf_machine_type_class(type) \
-  ((((type) == R_ARC_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)	\
+  ((((type) == R_ARC_JMP_SLOT || (type) == R_ARC_TLS_DTPMOD ||	\
+     (type) == R_ARC_TLS_DTPOFF || (type) == R_ARC_TLS_TPOFF)	\
+   * ELF_RTYPE_CLASS_PLT)					\
    | (((type) == R_ARC_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /*
