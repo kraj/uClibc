@@ -758,11 +758,8 @@ tf_sigpause (void *arg)
 
   pthread_cleanup_push (cl, NULL);
 
-  /* Just for fun block the cancellation signal.  We need to use
-     __xpg_sigpause since otherwise we will get the BSD version.  */
-  //__xpg_sigpause (SIGCANCEL);
-
-  __sigpause (SIGCANCEL, 1);
+  /* Just for fun block the cancellation signal.  */
+  sigpause (SIGCANCEL);
 
   pthread_cleanup_pop (0);
 
