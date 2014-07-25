@@ -29,6 +29,7 @@
 
 #define CLONE_VM		0x00000100
 #define CLONE_THREAD		0x00010000
+#define CLONE_SETTLS		0x00080000
 #define CLONE_THREAD_N_VM	(CLONE_THREAD | CLONE_VM)
 
 ENTRY(clone)
@@ -42,6 +43,7 @@ ENTRY(clone)
 	mov	r10, r0		; @fn
 	mov	r11, r3		; @args
 	mov	r12, r2		; @clone_flags
+	mov	r9,  r5		; @tls
 
 	; adjust libc args for syscall
 
@@ -57,6 +59,14 @@ ENTRY(clone)
 	jnz	[blink]		; Parent returns
 
 	; ----- child starts here ---------
+
+#if defined(__UCLIBC_HAS_TLS__)
+	; Setup TP register (since kernel doesn't do that)
+	and.f	0, r12, CLONE_SETTLS
+	bz	.Lnext_clone_quirk
+	SET_TP	r9
+
+.Lnext_clone_quirk:
 #ifdef RESET_PID
 	mov_s	r2, CLONE_THREAD_N_VM
 	and_s	r2, r2, r12
@@ -70,7 +80,7 @@ ENTRY(clone)
 
 .Lgo_thread:
 #endif
-
+#endif
 	; child jumps off to @fn with @arg as argument, and returns here
 	jl.d	[r10]
 	mov	r0, r11
