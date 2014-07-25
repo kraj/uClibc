@@ -124,14 +124,21 @@ static __always_inline Elf32_Addr elf_machine_dynamic(void)
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr elf_machine_load_address(void)
 {
-    /* To find the loadaddr we subtract the runtime addr of any symbol
-     * say _dl_start from it's build-time addr.
+    /* To find the loadaddr we subtract the runtime addr of a non-local symbol
+     * say _DYNAMIC from it's build-time addr.
+     * N.B., gotpc loads get optimized by the linker if it finds the symbol
+     * is resolved locally.
+     * A more robust - and efficient - solution would be to use a symbol
+     * set by the linker.  To make it actually save space, we'd have to
+     * suppress the unwanted text relocation in the linked dso, though.
+     * (I.e. in ldso.so.*, though it's just another dso as far as bfd/ld
+     * are concerned.)
      */
 	Elf32_Addr addr, tmp;
 	__asm__ (
-        "ld  %1, [pcl, _dl_start@gotpc] ;build addr of _dl_start   \n"
-        "add %0, pcl, _dl_start-.+(.&2) ;runtime addr of _dl_start \n"
-        "sub %0, %0, %1                 ;delta                     \n"
+        "ld  %1, [pcl, _DYNAMIC@gotpc] ;build addr of _DYNAMIC"   "\n"
+        "add %0, pcl, _DYNAMIC@pcl     ;runtime addr of _DYNAMIC" "\n"
+        "sub %0, %0, %1                ;delta"                    "\n"
         : "=&r" (addr), "=r"(tmp)
     );
 	return addr;
