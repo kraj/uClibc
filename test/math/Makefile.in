@@ -8,7 +8,6 @@ TESTS_DISABLED := libm-test
 TESTS_DISABLED += gamma
 ifeq ($(UCLIBC_HAS_LONG_DOUBLE_MATH),)
 TESTS_DISABLED += test-ldouble test-ildoubl compile_test c99_test
-else
 CFLAGS_basic-test := -DNO_LONG_DOUBLE
 endif
 ifeq ($(DO_C99_MATH),)
