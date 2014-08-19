@@ -35,8 +35,6 @@ pipe:
 	/* sanity check arguments */
 	tst	%i0
 	be	.Lerror
-	 orcc	%i1,%g0,%o1
-	be	.Lerror
 	 mov	%i2,%o0
 
 	/* Do the system call */
