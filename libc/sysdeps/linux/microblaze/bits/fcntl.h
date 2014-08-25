@@ -100,8 +100,6 @@
 				   close-on-exit set on new fd.  */
 # define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
 # define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
-# define F_SETPIPE_SZ	1031	/* Set of pipe page size array */
-# define F_GETPIPE_SZ	1032	/* Get of pipe page size array */
 #endif
 
 /* For F_[GET|SET]FL.  */
