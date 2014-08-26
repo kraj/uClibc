@@ -661,9 +661,6 @@ CFLAGS := $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-I$(top_srcdir)libc/sysdeps/linux \
 	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) \
 	-I$(top_srcdir)ldso/include -I.
-ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
-CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
-endif
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
@@ -713,9 +710,6 @@ LDFLAGS += -Wl,-s
 else
 STRIPTOOL := true -Stripping_disabled
 endif
-ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
-CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
-endif
 
 ifeq ($(DOMULTI),y)
 # we try to compile all sources at once into an object (IMA), but
@@ -733,6 +727,9 @@ else
 DOMULTI:=n
 endif
 
+ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
+CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
+endif
 ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
 LDFLAGS += $(call qstrip,$(UCLIBC_EXTRA_LDFLAGS))
 endif
