@@ -13,6 +13,9 @@ endif
 ifeq ($(DO_C99_MATH),)
 TESTS_DISABLED += test-float test-ifloat test-double test-idouble rint signgam ilogb
 endif
+ifeq ($(UCLIBC_HAS_FPU),)
+TESTS_DISABLED += test-fpucw
+endif
 
 DODIFF_rint     := 1
 DODIFF_signgam  := 1
