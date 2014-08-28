@@ -5,12 +5,11 @@ Following make targets are avaialable
 
 make compile
 
-This will compile and link the tests
+This will compile and link the tests.
 
 make run
 
-This will check for binaries, if they are not there it
-will call 'compile' target, then it will execute all the tests.
+This will execute all the tests.
 
 make check
 make all

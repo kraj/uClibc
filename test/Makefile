@@ -45,7 +45,7 @@ endif
 
 test check all: run
 
-run: compile subdirs_run
+run: subdirs_run
 
 compile: $(top_builddir)$(LOCAL_INSTALL_PATH) subdirs_compile
 
