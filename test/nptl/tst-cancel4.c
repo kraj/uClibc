@@ -1015,6 +1015,8 @@ tf_accept (void *arg)
       if (++tries > 10)
 	{
 	  printf ("%s: too many unsuccessful bind calls\n", __FUNCTION__);
+	  /* prevent endless loop, when bind fails forever */
+	  exit (1);
 	}
 
       strcpy (sun.sun_path, "/tmp/tst-cancel4-socket-1-XXXXXX");
