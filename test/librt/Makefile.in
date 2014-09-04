@@ -2,3 +2,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
 LDFLAGS_shmtest := -lrt
+
+ifeq ($(ARCH_USE_MMU),)
+TESTS_DISABLED := shmtest
+endif
