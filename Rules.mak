@@ -201,7 +201,7 @@ check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
 check_ld=$(shell \
-	if $(CC) $(LDFLAG-fuse-ld) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
+	if $(CC) $(LDFLAG-fuse-ld) $(CFLAG_-Wl--no-warn-mismatch) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; fi)
 
 # Use variable indirection here so that we can have variable
@@ -254,8 +254,11 @@ ARFLAGS:=cr
 
 # Note: The check for -nostdlib has to be before all calls to check_ld
 $(eval $(call check-gcc-var,-nostdlib))
-LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(EXTRA_UCLIBC_FLAGS))
 # deliberately not named CFLAG-fuse-ld since unchecked and from user
+LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(EXTRA_UCLIBC_FLAGS))
+# failed to merge target specific data of file /dev/null
+# Could use -Wl,--script,$(top_srcdir)extra/scripts/none.lds as well.
+$(eval $(call check-ld-var,--no-warn-mismatch))
 
 # Flags in OPTIMIZATION are used only for non-debug builds
 
