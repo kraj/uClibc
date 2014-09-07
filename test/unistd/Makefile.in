@@ -1,12 +1,22 @@
 # uClibc unistd tests
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
+# If LFS is not set, get rid of all *64 tests up front
 ifeq ($(UCLIBC_HAS_LFS),)
-TESTS_DISABLED := tst-preadwrite64 tst-posix_fallocate64
+TESTS_DISABLED := tst-preadwrite64 tst-posix_fallocate64 tst-fallocate64
 endif
+
+# If we don't have LINUX_SPECIFIC, then get rid of tst-fallocate
+ifeq ($(UCLIBC_LINUX_SPECIFIC),)
+TESTS_DISABLED += tst-fallocate
+endif
+
+# The logic is similar for HAS_ADVANCED_REALTIME and
+# tst-posix_fallocate/tst-posix_fallocate64
 ifeq ($(UCLIBC_HAS_ADVANCED_REALTIME),)
 TESTS_DISABLED += tst-posix_fallocate
 endif
+
 OPTS_getopt      := -abcXXX -9
 OPTS_getopt_long := --add XXX --delete YYY --verbose
 ifeq ($(UCLIBC_HAS_GNU_GETOPT),y)
