@@ -255,7 +255,7 @@ ARFLAGS:=cr
 # Note: The check for -nostdlib has to be before all calls to check_ld
 $(eval $(call check-gcc-var,-nostdlib))
 # deliberately not named CFLAG-fuse-ld since unchecked and from user
-LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(EXTRA_UCLIBC_FLAGS))
+LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(call qstrip,$(UCLIBC_EXTRA_CFLAGS)))
 # failed to merge target specific data of file /dev/null
 # Could use -Wl,--script,$(top_srcdir)extra/scripts/none.lds as well.
 $(eval $(call check-ld-var,--no-warn-mismatch))
