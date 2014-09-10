@@ -166,29 +166,15 @@ CFLAGS-OMIT-timer_settime.c = -DIS_IN_libpthread
 #ASFLAGS-write.S = -D_LIBC_REENTRANT
 #ASFLAGS-waitpid.S = -D_LIBC_REENTRANT
 
-#
-# Create header files.
-#
-CFLAGS-gen_lowlevelbarrier.c = -S
-CFLAGS-gen_lowlevelcond.c = -S
-CFLAGS-gen_lowlevelrobustlock.c = -S
-CFLAGS-gen_lowlevelrwlock.c = -S
-CFLAGS-gen_pthread-pi-defines.c = -S
-CFLAGS-gen_structsem.c = -S
-CFLAGS-gen_unwindbuf.c = -S
-
 PTHREAD_LINUX_SYM   := $(notdir $(wildcard $(libpthread_linux_DIR)/*.sym))
-PTHREAD_LINUX_SYM_C := $(addprefix $(libpthread_linux_OUT)/gen_,$(PTHREAD_LINUX_SYM:.sym=.c))
-PTHREAD_LINUX_SYM_S := $(PTHREAD_LINUX_SYM_C:.c=.s)
 PTHREAD_LINUX_SYM_H := $(addprefix $(libpthread_linux_OUT)/,$(PTHREAD_LINUX_SYM:.sym=.h))
 
-$(PTHREAD_LINUX_SYM_C): $(libpthread_linux_OUT)/gen_%.c: $(libpthread_linux_DIR)/%.sym | $(libpthread_linux_OUT)
-	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
-$(PTHREAD_LINUX_SYM_S): $(libpthread_linux_OUT)/gen_%.s: $(libpthread_linux_OUT)/gen_%.c | headers
-	$(compile.c)
-libpthread-generated-y += $(PTHREAD_LINUX_SYM_S)
-$(PTHREAD_LINUX_SYM_H): $(libpthread_linux_OUT)/%.h: $(libpthread_linux_OUT)/gen_%.s
-	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
+$(PTHREAD_LINUX_SYM_H): $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(PTHREAD_LINUX_SYM_H): $(libpthread_linux_OUT)/%.h: $(libpthread_linux_DIR)/%.sym
+	@$(disp_gen)
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \
+	| $(CC) $(CFLAGS) -x c - -S -o - \
+	| $(SED) $(PTHREAD_GENERATE_MANGLE) > $@
 	@if test ! -s $@ ; then rm -f $@ ; false ; fi
 
 pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(PTHREAD_LINUX_SYM_H)
@@ -200,8 +186,7 @@ $(ALL_HEADERS_BITS_PTHREAD): $(top_builddir)include/bits/%: | $(top_builddir)inc
 	$(do_ln) $(call rel_srcdir)$(libpthread_linux_DIR)/bits/$(@F) $@
 
 HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
-	$(do_rm) $(PTHREAD_LINUX_SYM_C) $(PTHREAD_LINUX_SYM_S) \
-		$(PTHREAD_LINUX_SYM_H)
+	$(do_rm) $(PTHREAD_LINUX_SYM_H)
 
 CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
 	$(do_rm) $(addprefix $(libpthread_linux_OUT)/*., o os oS)
