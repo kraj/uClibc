@@ -633,7 +633,7 @@ WARNING_FLAGS += \
 	-Wshadow \
 	-Wundef
 # Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
-WARNING_FLAGS-gcc-4 += -Wdeclaration-after-statement
+#WARNING_FLAGS-gcc-4 += -Wdeclaration-after-statement
 endif
 WARNING_FLAGS += $(WARNING_FLAGS-gcc-$(GCC_MAJOR_VER))
 $(foreach w,$(WARNING_FLAGS),$(eval $(call check-gcc-var,$(w))))
@@ -737,10 +737,14 @@ ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
 LDFLAGS += $(call qstrip,$(UCLIBC_EXTRA_LDFLAGS))
 endif
 
+ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
+CFLAGS += -D__USE_STDIO_FUTEXES__
+endif
+
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	PTNAME := nptl
-	CFLAGS += -DHAVE_FORCED_UNWIND
+	CFLAGS += -DHAVE_FORCED_UNWIND -D_LIBC_REENTRANT
 else
 ifeq ($(LINUXTHREADS_OLD),y)
 	PTNAME := linuxthreads.old
@@ -814,7 +818,7 @@ endif
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
 $(eval $(call check-as-var,--noexecstack))
 endif
-ASFLAGS = $(ASFLAG_--noexecstack)
+ASFLAGS += $(ASFLAG_--noexecstack)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 $(eval $(call cache-output-var,LIBGCC,$(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name))

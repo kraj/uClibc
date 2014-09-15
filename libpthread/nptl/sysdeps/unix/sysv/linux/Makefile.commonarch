@@ -134,8 +134,6 @@ ifneq ($(UCLIBC_HAS_BACKTRACE),)
 CFLAGS-raise.c = -fasynchronous-unwind-tables
 endif
 
-CFLAGS-linux = -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
-
 CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-libc_multiple_threads.c = -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-OMIT-register-atfork.c = -DNOT_IN_libc -DIS_IN_libpthread
@@ -159,12 +157,6 @@ CFLAGS-OMIT-timer_getoverr.c = -DIS_IN_libpthread
 CFLAGS-OMIT-timer_gettime.c = -DIS_IN_libpthread
 CFLAGS-OMIT-timer_routines.c = -DIS_IN_libpthread
 CFLAGS-OMIT-timer_settime.c = -DIS_IN_libpthread
-
-#ASFLAGS-open.S = -D_LIBC_REENTRANT
-#ASFLAGS-close.S = -D_LIBC_REENTRANT
-#ASFLAGS-read.S = -D_LIBC_REENTRANT
-#ASFLAGS-write.S = -D_LIBC_REENTRANT
-#ASFLAGS-waitpid.S = -D_LIBC_REENTRANT
 
 PTHREAD_LINUX_SYM   := $(notdir $(wildcard $(libpthread_linux_DIR)/*.sym))
 PTHREAD_LINUX_SYM_H := $(addprefix $(libpthread_linux_OUT)/,$(PTHREAD_LINUX_SYM:.sym=.h))

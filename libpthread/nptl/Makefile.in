@@ -141,7 +141,8 @@ LDFLAGS-libpthread.so += $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so $(
 
 LIBS-libpthread.so := $(LIBS)
 
-CFLAGS-nptl = -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
+CFLAGS-dir_nptl := -DNOT_IN_libc -DIS_IN_libpthread
+CFLAGS-libpthread/nptl := $(CFLAGS-dir_nptl) $(SSP_ALL_CFLAGS)
 
 # Since cancellation handling is in large parts handled using exceptions
 # we have to compile some files with exception handling enabled, some
@@ -212,7 +213,7 @@ CFLAGS-pthread_barrierattr_getpshared.c = -D_GNU_SOURCE
 CFLAGS-pthread_barrierattr_setpshared.c = -D_GNU_SOURCE
 CFLAGS-sem_open.c = -D_GNU_SOURCE
 
-CFLAGS-OMIT-alloca_cutoff.c = $(CFLAGS-nptl)
-CFLAGS-OMIT-forward.c = $(CFLAGS-nptl)
-CFLAGS-OMIT-libc-lowlevelock.c = $(CFLAGS-nptl)
-CFLAGS-OMIT-libc-cancellation.c = $(CFLAGS-nptl)
+CFLAGS-OMIT-alloca_cutoff.c = $(CFLAGS-dir_nptl)
+CFLAGS-OMIT-forward.c = $(CFLAGS-dir_nptl)
+CFLAGS-OMIT-libc-lowlevelock.c = $(CFLAGS-dir_nptl)
+CFLAGS-OMIT-libc-cancellation.c = $(CFLAGS-dir_nptl)
