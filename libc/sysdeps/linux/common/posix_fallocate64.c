@@ -14,26 +14,15 @@
 #include <stdint.h>
 
 #if defined __NR_fallocate
-
 # if __WORDSIZE == 64
 /* Can use normal posix_fallocate() */
 # elif __WORDSIZE == 32
+extern __typeof(fallocate64) __libc_fallocate64 attribute_hidden;
 int posix_fallocate64(int fd, __off64_t offset, __off64_t len)
 {
-	int ret;
-	uint32_t off_low = offset & 0xffffffff;
-	uint32_t off_high = offset >> 32;
-	uint32_t len_low = len & 0xffffffff;
-	uint32_t len_high = len >> 32;
-	INTERNAL_SYSCALL_DECL(err);
-	ret = (int) (INTERNAL_SYSCALL(fallocate, err, 6, fd, 0,
-		__LONG_LONG_PAIR (off_high, off_low),
-		__LONG_LONG_PAIR (len_high, len_low)));
-    if (unlikely(INTERNAL_SYSCALL_ERROR_P (ret, err)))
-      return INTERNAL_SYSCALL_ERRNO (ret, err);
-    return 0;
+	return __libc_fallocate64(fd, 0, offset, len);
 }
 # else
-# error your machine is neither 32 bit or 64 bit ... it must be magical
+#  error your machine is neither 32 bit or 64 bit ... it must be magical
 # endif
 #endif

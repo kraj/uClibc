@@ -305,6 +305,8 @@ unistd/getcwd
 unistd/getopt
 unistd/getopt_long
 unistd/tstgetopt
+unistd/tst-fallocate
+unistd/tst-fallocate64
 unistd/tst-posix_fallocate
 unistd/tst-posix_fallocate64
 unistd/tst-preadwrite
