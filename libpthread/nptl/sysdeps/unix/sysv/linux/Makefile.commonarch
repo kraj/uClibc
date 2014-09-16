@@ -122,41 +122,17 @@ headers_clean-y += HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux
 CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)librt
 CFLAGS-pt-pread_pwrite.c = -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
 			    -I$(top_srcdir)libc/sysdeps/linux/common
-CFLAGS-mq_notify.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_create.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_delete.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_getoverr.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_gettime.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_routines.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_settime.c = -I$(top_srcdir)librt -DIS_IN_librt
+CFLAGS-mq_notify.c = -I$(top_srcdir)librt
+CFLAGS-timer_create.c = -I$(top_srcdir)librt
+CFLAGS-timer_delete.c = -I$(top_srcdir)librt
+CFLAGS-timer_getoverr.c = -I$(top_srcdir)librt
+CFLAGS-timer_gettime.c = -I$(top_srcdir)librt
+CFLAGS-timer_routines.c = -I$(top_srcdir)librt
+CFLAGS-timer_settime.c = -I$(top_srcdir)librt
 
 ifneq ($(UCLIBC_HAS_BACKTRACE),)
 CFLAGS-raise.c = -fasynchronous-unwind-tables
 endif
-
-CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-libc_multiple_threads.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-register-atfork.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-unregister-atfork.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-getpid.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-sleep.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-jmp-unwind.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread
-
-#CFLAGS-OMIT-close.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-open.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-read.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-write.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-waitpid.S = -DNOT_IN_libc -DIS_IN_libpthread
-
-CFLAGS-OMIT-mq_notify.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_create.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_delete.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_getoverr.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_gettime.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_routines.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_settime.c = -DIS_IN_libpthread
 
 PTHREAD_LINUX_SYM   := $(notdir $(wildcard $(libpthread_linux_DIR)/*.sym))
 PTHREAD_LINUX_SYM_H := $(addprefix $(libpthread_linux_OUT)/,$(PTHREAD_LINUX_SYM:.sym=.h))
