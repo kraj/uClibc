@@ -274,6 +274,8 @@ stdlib/testarc4random
 stdlib/testatexit
 stdlib/test-canon
 stdlib/test-canon2
+stdlib/test-mkostemp-O_CLOEXEC
+stdlib/test-mkostemp-child
 stdlib/teston_exit
 stdlib/teststrtol
 stdlib/teststrtoq
