@@ -5,8 +5,13 @@ TESTS_DISABLED := bug-asctime bug-asctime_r time tst-mktime2 tst-posixtz \
 	tst-strftime tst-strptime tst-timezone
 
 ifneq ($(UCLIBC_HAS_XLOCALE),y)
-TESTS_DISABLED += tst-ftime_l tst_wcsftime
+TESTS_DISABLED += tst-ftime_l
+endif
+
+ifneq ($(UCLIBC_HAS_WCHAR)$(UCLIBC_HAS_LOCALE),yy)
+TESTS_DISABLED += tst_wcsftime
 endif
 
 CFLAGS_tst-strptime2 := -std=c99
 DODIFF_futimens1 := 1
+DODIFF_tst_wcsftime := 1
