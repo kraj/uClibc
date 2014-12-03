@@ -260,9 +260,17 @@ LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(call qstrip,$(UCLIBC_EXTRA_CFLAGS)))
 # Could use -Wl,--script,$(top_srcdir)extra/scripts/none.lds as well.
 $(eval $(call check-ld-var,--no-warn-mismatch))
 
+$(eval $(call cache-output-var,GCC_VER,$(CC) -dumpversion))
+GCC_VER := $(subst ., ,$(GCC_VER))
+GCC_MAJOR_VER ?= $(word 1,$(GCC_VER))
+GCC_MINOR_VER ?= $(word 2,$(GCC_VER))
+
 # Flags in OPTIMIZATION are used only for non-debug builds
 
 OPTIMIZATION:=
+OPTIMIZATION-$(GCC_MAJOR_VER):=
+OPTIMIZATION-$(GCC_MAJOR_VER).$(GCC_MINOR_VER):=
+
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 $(eval $(call check-gcc-var,-Os))
 ifneq ($(CFLAG_-Os),)
@@ -273,31 +281,9 @@ OPTIMIZATION += $(CFLAG_-O2)
 endif
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 $(eval $(call check-gcc-var,-funit-at-a-time))
-OPTIMIZATION += $(CFLAG_-funit-at-a-time)
-# shrinks code by about 0.1%
-$(eval $(call check-gcc-var,-fmerge-all-constants))
+OPTIMIZATION-3.4 += $(CFLAG_-funit-at-a-time)
 $(eval $(call check-gcc-var,-fstrict-aliasing))
-OPTIMIZATION += $(CFLAG_-fmerge-all-constants) $(CFLAG_-fstrict-aliasing)
-
-$(eval $(call cache-output-var,GCC_VER,$(CC) -dumpversion))
-GCC_VER := $(subst ., ,$(GCC_VER))
-GCC_MAJOR_VER ?= $(word 1,$(GCC_VER))
-#GCC_MINOR_VER ?= $(word 2,$(GCC_VER))
-
-ifneq ($(TARGET_ARCH),arc)
-ifeq ($(GCC_MAJOR_VER),4)
-# shrinks code, results are from 4.0.2
-# 0.36%
-$(eval $(call check-gcc-var,-fno-tree-loop-optimize))
-OPTIMIZATION += $(CFLAG_-fno-tree-loop-optimize)
-# 0.34%
-$(eval $(call check-gcc-var,-fno-tree-dominator-opts))
-OPTIMIZATION += $(CFLAG_-fno-tree-dominator-opts)
-# 0.1%
-$(eval $(call check-gcc-var,-fno-strength-reduce))
-OPTIMIZATION += $(CFLAG_-fno-strength-reduce)
-endif
-endif
+OPTIMIZATION += $(CFLAG_-fstrict-aliasing)
 
 # CPU_CFLAGS-y contain options which are not warnings,
 # not include or library paths, and not optimizations.
@@ -707,6 +693,8 @@ ifeq ($(DODEBUG),y)
 CFLAGS += -O0 -g3 -DDEBUG
 else
 CFLAGS += $(OPTIMIZATION)
+CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER))
+CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER).$(GCC_MINOR_VER))
 endif
 ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s
