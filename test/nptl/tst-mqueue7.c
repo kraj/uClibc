@@ -32,10 +32,12 @@
 static mqd_t after_exec = (mqd_t) -1;
 
 #define CMDLINE_OPTIONS \
+	"a:"
+/*
   { "after-exec", required_argument, NULL, OPT_AFTEREXEC },
-
+*/
 #define CMDLINE_PROCESS \
-  case OPT_AFTEREXEC:					\
+  case 'a':					\
     after_exec = (mqd_t) strtoul (optarg, NULL, 0);	\
     break;
 

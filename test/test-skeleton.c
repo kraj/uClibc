@@ -18,7 +18,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
-#include <getopt.h>
 #include <malloc.h>
 #include <search.h>
 #include <signal.h>
@@ -46,6 +45,7 @@
 #define OPT_DIRECT 1000
 #define OPT_TESTDIR 1001
 
+#if 0 /* Not used in uClibc */
 static struct option options[] =
 {
 #ifdef CMDLINE_OPTIONS
@@ -55,6 +55,7 @@ static struct option options[] =
   { "test-dir", required_argument, NULL, OPT_TESTDIR },
   { NULL, 0, NULL, 0 }
 };
+#endif
 
 /* PID of the test itself.  */
 static pid_t pid;
@@ -234,7 +235,14 @@ main (int argc, char *argv[])
   setbuf (stdout, NULL);
 #endif
 
+#if 0 /* Not used in uClibc */
   while ((opt = getopt_long (argc, argv, "+", options, NULL)) != -1)
+#else
+# ifndef CMDLINE_OPTIONS
+#  define CMDLINE_OPTIONS ""
+# endif
+  while ((opt = getopt (argc, argv, "+" CMDLINE_OPTIONS)) >= 0)
+#endif
     switch (opt)
       {
       case '?':
