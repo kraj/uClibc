@@ -18,7 +18,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
-#include <error.h>
 #include <dirent.h>
 #include <glob.h>
 #include <stdlib.h>

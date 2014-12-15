@@ -78,6 +78,9 @@ CFLAGS         := -nostdinc -I$(top_builddir)$(LOCAL_INSTALL_PATH)/usr/include
 CFLAGS         += $(XCOMMON_CFLAGS) $(KERNEL_INCLUDES) $(CC_INC)
 CFLAGS         += $(OPTIMIZATION) $(CPU_CFLAGS) $(XWARNINGS)
 
+$(eval $(call check-gcc-var,-Wno-missing-field-initializers))
+CFLAGS         += $(CFLAG_-Wno-missing-field-initializers)
+
 # Can't add $(OPTIMIZATION) here, it may be target-specific.
 # Just adding -Os for now.
 HOST_CFLAGS    += $(XCOMMON_CFLAGS) -Os $(XWARNINGS) -std=gnu99

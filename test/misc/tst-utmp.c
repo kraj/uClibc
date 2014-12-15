@@ -18,7 +18,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <errno.h>
-#include <error.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -69,8 +68,11 @@ do_prepare (int argc, char *argv[])
 
   /* Open our test file.  */
   fd = mkstemp (name);
-  if (fd == -1)
-    error (EXIT_FAILURE, errno, "cannot open test file `%s'", name);
+  if (fd == -1) {
+    fprintf (stderr, "cannot open test file `%s': ", name);
+    perror (NULL);
+    exit (EXIT_FAILURE);
+  }
 }
 
 struct utmp entry[] =
@@ -110,7 +112,7 @@ do_init (void)
     {
       if (pututline (&entry[n]) == NULL)
 	{
-	  error (0, errno, "cannot write UTMP entry");
+	  perror ("cannot write UTMP entry");
 	  return 1;
 	}
     }
@@ -135,7 +137,7 @@ do_check (void)
       if (n < num_entries &&
 	  memcmp (ut, &entry[n], sizeof (struct utmp)))
 	{
-	  error (0, 0, "UTMP entry does not match");
+	  fprintf (stderr, "UTMP entry does not match\n");
 	  return 1;
 	}
 
@@ -144,7 +146,7 @@ do_check (void)
 
   if (n != num_entries)
     {
-      error (0, 0, "number of UTMP entries is incorrect");
+      fprintf (stderr, "number of UTMP entries is incorrect\n");
       return 1;
     }
 
@@ -176,7 +178,7 @@ simulate_login (const char *line, const char *user)
 
 	  if (pututline (&entry[n]) == NULL)
 	    {
-	      error (0, errno, "cannot write UTMP entry");
+	      perror ("cannot write UTMP entry");
 	      return 1;
 	    }
 
@@ -186,7 +188,7 @@ simulate_login (const char *line, const char *user)
 	}
     }
 
-  error (0, 0, "no entries available");
+  fprintf (stderr, "no entries available\n");
   return 1;
 }
 
@@ -210,7 +212,7 @@ simulate_logout (const char *line)
 
 	  if (pututline (&entry[n]) == NULL)
 	    {
-	      error (0, errno, "cannot write UTMP entry");
+	      perror ("cannot write UTMP entry");
 	      return 1;
 	    }
 
@@ -220,7 +222,7 @@ simulate_logout (const char *line)
 	}
     }
 
-  error (0, 0, "no entry found for `%s'", line);
+  fprintf (stderr, "no entry found for `%s'\n", line);
   return 1;
 }
 
@@ -237,7 +239,8 @@ check_login (const char *line)
   up = getutline (&ut);
   if (up == NULL)
     {
-      error (0, errno, "cannot get entry for line `%s'", line);
+      fprintf (stderr, "cannot get entry for line `%s': ", line);
+	  perror(NULL);
       return 1;
     }
 
@@ -249,7 +252,7 @@ check_login (const char *line)
 	{
 	  if (memcmp (up, &entry[n], sizeof (struct utmp)))
 	    {
-	      error (0, 0, "UTMP entry does not match");
+	      fprintf (stderr, "UTMP entry does not match\n");
 	      return 1;
 	    }
 
@@ -257,7 +260,7 @@ check_login (const char *line)
 	}
     }
 
-  error (0, 0, "bogus entry for line `%s'", line);
+  fprintf (stderr, "bogus entry for line `%s'\n", line);
   return 1;
 }
 
@@ -271,7 +274,7 @@ check_logout (const char *line)
   strcpy (ut.ut_line, line);
   if (getutline (&ut) != NULL)
     {
-      error (0, 0, "bogus login entry for `%s'", line);
+      fprintf (stderr, "bogus login entry for `%s'\n", line);
       return 1;
     }
 
@@ -294,7 +297,8 @@ check_id (const char *id)
   up = getutid (&ut);
   if (up == NULL)
     {
-      error (0, errno, "cannot get entry for ID `%s'", id);
+      fprintf (stderr, "cannot get entry for ID `%s': ", id);
+	  perror (NULL);
       return 1;
     }
 
@@ -306,7 +310,7 @@ check_id (const char *id)
 	{
 	  if (memcmp (up, &entry[n], sizeof (struct utmp)))
 	    {
-	      error (0, 0, "UTMP entry does not match");
+	      fprintf (stderr, "UTMP entry does not match\n");
 	      return 1;
 	    }
 
@@ -314,7 +318,7 @@ check_id (const char *id)
 	}
     }
 
-  error (0, 0, "bogus entry for ID `%s'", id);
+  fprintf (stderr, "bogus entry for ID `%s'\n", id);
   return 1;
 }
 
@@ -331,7 +335,8 @@ check_type (int type)
   up = getutid (&ut);
   if (up == NULL)
     {
-      error (0, errno, "cannot get entry for type `%d'", type);
+      fprintf (stderr, "cannot get entry for type `%d': ", type);
+	  perror (NULL);
       return 1;
     }
 
@@ -343,7 +348,7 @@ check_type (int type)
 	{
 	  if (memcmp (up, &entry[n], sizeof (struct utmp)))
 	    {
-	      error (0, 0, "UTMP entry does not match");
+	      fprintf (stderr, "UTMP entry does not match\n");
 	      return 1;
 	    }
 
@@ -351,7 +356,7 @@ check_type (int type)
 	}
     }
 
-  error (0, 0, "bogus entry for type `%d'", type);
+  fprintf (stderr, "bogus entry for type `%d'\n", type);
   return 1;
 }
 

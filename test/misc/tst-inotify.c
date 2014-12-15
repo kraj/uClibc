@@ -11,7 +11,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
-#include <error.h>
 #include <inttypes.h>
 #include <sys/inotify.h>
 #include <sys/fcntl.h>
@@ -39,7 +38,7 @@ do_test(void)
 	/* nonblocking inotify should return immediately with no events */
 	ret = read(ifd, &e, sizeof(e));
 	if (ret != -1 || errno != EAGAIN) {
-		error(0, 0, "first read() returned %d", ret);
+		fprintf(stderr, "first read() returned %d\n", ret);
 		result = 1;
 	}
 
@@ -49,12 +48,12 @@ do_test(void)
 	/* now check whether our event was seen */
 	ret = read(ifd, &e, sizeof(e));
 	if (ret != sizeof(e)) {
-		error(0, 0, "second read() returned %d", ret);
+		fprintf(stderr, "second read() returned %d\n", ret);
 		result = 1;
 	}
 
 	if (!(e.mask & IN_DELETE_SELF)) {
-		error(0, 0, "incorrect event mask: %" PRIx32, e.mask);
+		fprintf(stderr, "incorrect event mask: %" PRIx32 "\n", e.mask);
 		result = 1;
 	}
 

@@ -145,7 +145,9 @@ signal_handler (int sig __attribute__ ((unused)))
   /* Wait for it to terminate.  */
   for (i = 0; i < 5; ++i)
     {
+#ifdef __UCLIBC_HAS_REALTIME__
       struct timespec ts;
+#endif
       killed = waitpid (pid, &status, WNOHANG|WUNTRACED);
       if (killed != 0)
 	break;
@@ -154,9 +156,14 @@ signal_handler (int sig __attribute__ ((unused)))
 	 nanosleep() call return prematurely, all the better.  We
 	 won't restart it since this probably means the child process
 	 finally died.  */
+#ifdef __UCLIBC_HAS_REALTIME__
       ts.tv_sec = 0;
       ts.tv_nsec = 100000000;
       nanosleep (&ts, NULL);
+#else
+	  /* No nanosleep, just sleep 1s instead of 0.1s */
+	  sleep(1);
+#endif
     }
   if (killed != 0 && killed != pid)
     {

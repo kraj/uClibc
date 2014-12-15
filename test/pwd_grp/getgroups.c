@@ -13,7 +13,6 @@
 #include <sys/types.h>
 #include <pwd.h>
 #include <grp.h>
-#include <err.h>
 
 /* The number of errors encountered so far. */
 static int problems = 0;
@@ -25,7 +24,7 @@ static void print_group(gid_t gid)
 
 	grp = getgrgid(gid);
 	if (grp == NULL) {
-		warn("cannot find name for group ID %u", gid);
+		fprintf(stderr, "cannot find name for group ID %u\n", gid);
 		problems++;
 	}
 
@@ -46,12 +45,14 @@ static int xgetgroups(gid_t gid, int *n_groups, gid_t ** groups)
 
 	/* Add 1 just in case max_n_groups is zero.  */
 	g = (gid_t *) malloc(max_n_groups * sizeof(gid_t) + 1);
-	if (g == NULL)
-		err(EXIT_FAILURE, "out of memory");
+	if (g == NULL) {
+		fprintf(stderr, "out of memory\n");
+		exit(EXIT_FAILURE);
+	}
 	ng = getgroups(max_n_groups, g);
 
 	if (ng < 0) {
-		warn("cannot get supplemental group list");
+		fprintf(stderr, "cannot get supplemental group list\n");
 		++fail;
 		free(g);
 	}
