@@ -90,14 +90,14 @@ do_test (int argc, char **argv)
       return 1;
     }
 
-  char after_exec_arg[sizeof "--after-exec=0x" + sizeof (long) * 3];
+  char after_exec_arg[sizeof "-a=0x" + sizeof (long) * 3];
   snprintf (after_exec_arg, sizeof (after_exec_arg),
-	    "--after-exec=0x%lx", (long) q);
+	    "-a=0x%lx", (long) q);
 
   const char *newargv[argc + 2];
   for (int i = 1; i < argc; ++i)
     newargv[i - 1] = argv[i];
-  newargv[argc - 1] = "--direct";
+  newargv[argc - 1] = "-d";
   newargv[argc] = after_exec_arg;
   newargv[argc + 1] = NULL;
 

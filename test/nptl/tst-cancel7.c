@@ -32,7 +32,7 @@ char pidfilename[] = "/tmp/tst-cancel7-XXXXXX";
 static void *
 tf (void *arg)
 {
-  const char *args = " --direct --pidfile ";
+  const char *args = " -d -p ";
   char *cmd = alloca (strlen (command) + strlen (args)
 		      + strlen (pidfilename) + 1);
 

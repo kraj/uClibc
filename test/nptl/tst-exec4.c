@@ -51,7 +51,7 @@ tf (void *arg)
   char **argv = (char **) alloca ((n + 1) * sizeof (char *));
   for (n = 0; oldargv[n + 1] != NULL; ++n)
     argv[n] = oldargv[n + 1];
-  argv[n++] = (char *) "--direct";
+  argv[n++] = (char *) "-d";
   argv[n] = NULL;
 
   execv (argv[0], argv);

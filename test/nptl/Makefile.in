@@ -207,7 +207,7 @@ tst-tls5: tst-tls5mod.so
 tst-cleanupx4 : tst-cleanup4aux.o
 tst-fini1: tst-fini1mod.so
 
-OPTS_tst-cancel7 = --command ./tst-cancel7
+OPTS_tst-cancel7 = -c ./tst-cancel7
 OPTS_tst-mqueue7 = -- ./tst-mqueue7
 OPTS_tst-exec4 = ./tst-exec4
 
