@@ -36,6 +36,7 @@ typedef struct xtensa_got_location_struct {
   do {									      \
     xtensa_got_location *got_loc;					      \
     Elf32_Addr l_addr = MODULE->loadaddr;				      \
+    Elf32_Addr prev_got_start = 0, prev_got_end = 0;			      \
     int x;								      \
 									      \
     got_loc = (xtensa_got_location *)					      \
@@ -47,7 +48,28 @@ typedef struct xtensa_got_location_struct {
 	got_start = got_loc[x].offset & ~(PAGE_SIZE - 1);		      \
 	got_end = ((got_loc[x].offset + got_loc[x].length + PAGE_SIZE - 1)    \
 		   & ~(PAGE_SIZE - 1));					      \
-	_dl_mprotect ((void *)(got_start + l_addr) , got_end - got_start,     \
+	if (got_end >= prev_got_start && got_start <= prev_got_end)	      \
+	  {								      \
+	    if (got_end > prev_got_end)					      \
+		prev_got_end = got_end;					      \
+	    if (got_start < prev_got_start)				      \
+		prev_got_start = got_start;				      \
+	    continue;							      \
+	  }								      \
+        else if (prev_got_start != prev_got_end)			      \
+	  {								      \
+	    _dl_mprotect ((void *)(prev_got_start + l_addr),		      \
+			  prev_got_end - prev_got_start,		      \
+			  PROT_READ | PROT_WRITE | PROT_EXEC);		      \
+          }								      \
+        prev_got_start = got_start;					      \
+        prev_got_end = got_end;						      \
+      }									      \
+									      \
+    if (prev_got_start != prev_got_end)					      \
+      {									      \
+        _dl_mprotect ((void *)(prev_got_start + l_addr),		      \
+		      prev_got_end - prev_got_start,			      \
 		      PROT_READ | PROT_WRITE | PROT_EXEC);		      \
       }									      \
 									      \
