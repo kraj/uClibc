@@ -22,8 +22,9 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	struct sigaction kact;
 
-	/* !act means caller only wants to know @oact
-	 * Hence only otherwise, do SA_RESTORER stuff
+	/*
+	 * SA_RESTORER is only relevant for act != NULL case
+	 * (!act means caller only wants to know @oact)
 	 *
 	 * For the normal/default cases (user not providing SA_RESTORER) use
 	 * a real sigreturn stub to avoid kernel synthesizing one on user stack
@@ -31,9 +32,11 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 	 * update) and costly cache line flushes for code modification
 	 */
 	if (act && !(act->sa_flags & SA_RESTORER)) {
-		memcpy(&kact, act, sizeof(kact));
 		kact.sa_restorer = __default_rt_sa_restorer;
-		kact.sa_flags |= SA_RESTORER;
+		kact.sa_flags = act->sa_flags | SA_RESTORER;
+
+		kact.sa_handler = act->sa_handler;
+		kact.sa_mask = act->sa_mask;
 
 		act = &kact;
 	}
