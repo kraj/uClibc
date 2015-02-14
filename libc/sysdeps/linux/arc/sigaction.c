@@ -41,7 +41,8 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 		act = &kact;
 	}
 
-	return __syscall_rt_sigaction(sig, act, oact, sizeof(act->sa_mask));
+	return INLINE_SYSCALL(rt_sigaction, 4,
+			sig, act, oact, sizeof(act->sa_mask));
 }
 
 #ifndef LIBC_SIGACTION
