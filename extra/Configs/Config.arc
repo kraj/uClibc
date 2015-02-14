@@ -21,3 +21,20 @@ config CONFIG_ARC_CPU_700
 	  ARCompact ISA based ARC CPU
 
 endchoice
+
+choice
+	prompt "MMU Page Size"
+	default CONFIG_ARC_PAGE_SIZE_8K
+
+config CONFIG_ARC_PAGE_SIZE_8K
+	bool "8KB"
+	help
+	  Choose between 4k, 8k (default) or 16k
+
+config CONFIG_ARC_PAGE_SIZE_16K
+	bool "16KB"
+
+config CONFIG_ARC_PAGE_SIZE_4K
+	bool "4KB"
+
+endchoice
