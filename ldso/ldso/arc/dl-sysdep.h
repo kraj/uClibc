@@ -69,11 +69,16 @@ do {									\
 } while(0)
 
 /* Here we define the magic numbers that this dynamic loader should accept */
+#ifdef __A7__
 #define MAGIC1 EM_ARCOMPACT
+#define ELF_TARGET "ARCompact"	/* For error messages */
+#elif defined(__HS__)
+#define MAGIC1 EM_ARCV2
+#define ELF_TARGET "ARCv2"	/* For error messages */
+#endif
+
 #undef  MAGIC2
 
-/* Used for error messages */
-#define ELF_TARGET "ARC"
 
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt,
@@ -81,6 +86,8 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt,
 
 extern unsigned __udivmodsi4(unsigned, unsigned) attribute_hidden;
 
+#ifdef __A7__
+/* using "C" causes an indirection via __umodsi3 -> __udivmodsi4 */
 #define do_rem(result, n, base)  ((result) =				\
 									\
 	__builtin_constant_p (base) ? (n) % (unsigned) (base) :		\
@@ -95,6 +102,10 @@ extern unsigned __udivmodsi4(unsigned, unsigned) attribute_hidden;
 		r1;							\
 	})								\
 )
+#elif defined(__HS__)
+/* ARCv2 has hardware assisted divide/mod */
+#define do_rem(result, n, base)  ((result) = (n) % (unsigned) (base))
+#endif
 
 /* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
    TLS variable so PLT entries should not be allowed to define the value.

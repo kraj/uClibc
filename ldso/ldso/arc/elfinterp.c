@@ -11,7 +11,11 @@
  */
 #include "ldso.h"
 
+#ifdef __A7__
 #define ARC_PLT_SIZE	12
+#else
+#define ARC_PLT_SIZE	16
+#endif
 
 unsigned long
 _dl_linux_resolver(struct elf_resolve *tpnt, unsigned int plt_pc)

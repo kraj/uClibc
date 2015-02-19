@@ -378,6 +378,7 @@ typedef struct
 
 /* Xilinx Microblaze (official) */
 #define EM_MICROBLAZE   189
+#define EM_ARCV2	195		/* ARCv2 Cores */
 
 /* Legal values for e_version (version).  */
 

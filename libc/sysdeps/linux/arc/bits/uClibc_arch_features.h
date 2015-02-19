@@ -47,4 +47,11 @@
 /* The default ';' is a comment on ARC. */
 #define __UCLIBC_ASM_LINE_SEP__ `
 
+/* does your target align 64bit values in register pairs ? (32bit arches only) */
+#if defined(__A7__)
+#undef __UCLIBC_SYSCALL_ALIGN_64BIT__
+#else
+#define __UCLIBC_SYSCALL_ALIGN_64BIT__
+#endif
+
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */
