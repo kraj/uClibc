@@ -326,9 +326,10 @@ cmd_hcompile.o = $(HOSTCC) $(filter-out $(PHONY),$<) $(DEPS-$(notdir $@)) -c -o 
 
 define create-lds
 	$(Q)$(RM) $@.lds
-	$(Q)$(CC) -nostdlib -nostartfiles -shared -Wl,-z,combreloc \
-	-Wl,-z,relro -Wl,--hash-style=gnu -Wl,-z,defs \
-	-Wl,--verbose 2>&1 | LC_ALL=C \
+	$(Q)$(CC) $(LDFLAG-fuse-ld) $(CPU_LDFLAGS-y) \
+	-nostdlib -nostartfiles -shared -Wl,-z,combreloc \
+	-Wl,-z,relro $(CFLAG_-Wl--hash-style=gnu) -Wl,-z,defs \
+	-x c /dev/null -Wl,--verbose 2>&1 | LC_ALL=C \
 	$(SED) -e '/^=========/,/^=========/!d;/^=========/d' \
 	-e 's/^\([ 	]*\)\. = .* + SIZEOF_HEADERS;/&\n\1$(SYMBOL_PREFIX)_begin = . - SIZEOF_HEADERS;/' > $@.lds
 endef
