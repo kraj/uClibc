@@ -115,6 +115,9 @@
 # define _GNU_SOURCE
 #endif
 
+#undef __CHK_COMPLEX_STUFF
+#define __CHK_COMPLEX_STUFF 0
+
 #include "libm-test-ulps.h"
 #include <complex.h>
 #include <math.h>
@@ -1120,8 +1123,10 @@ cacosh_test (void)
 
   END (cacosh, complex);
 }
+#endif
 
 
+#if __CHK_COMPLEX_STUFF
 static void
 carg_test (void)
 {
@@ -1188,7 +1193,9 @@ carg_test (void)
 
   END (carg);
 }
+#endif /* __CHK_COMPLEX_STUFF */
 
+#if 0
 static void
 casin_test (void)
 {
@@ -1683,7 +1690,7 @@ ceil_test (void)
 }
 
 
-#if 0
+#if __CHK_COMPLEX_STUFF
 static void
 cexp_test (void)
 {
@@ -1746,8 +1753,9 @@ cexp_test (void)
 
   END (cexp, complex);
 }
+#endif /* __CHK_COMPLEX_STUFF */
 
-
+#if 0
 static void
 cimag_test (void)
 {
@@ -2588,7 +2596,6 @@ fabs_test (void)
 }
 
 
-#if 0
 static void
 fdim_test (void)
 {
@@ -2624,7 +2631,6 @@ fdim_test (void)
 
   END (fdim);
 }
-#endif
 
 
 static void
@@ -2694,7 +2700,6 @@ floor_test (void)
 }
 
 
-#if 0
 static void
 fma_test (void)
 {
@@ -2797,7 +2802,6 @@ fmin_test (void)
 
   END (fmin);
 }
-#endif
 
 
 static void
@@ -3002,7 +3006,7 @@ isnormal_test (void)
   END (isnormal);
 }
 
-#if defined __DO_XSI_MATH__
+#if defined __DO_XSI_MATH__ && !(defined TEST_LDOUBLE || defined TEST_FLOAT)
 static void
 j0_test (void)
 {
@@ -3629,7 +3633,6 @@ modf_test (void)
 }
 
 
-#if 0
 static void
 nearbyint_test (void)
 {
@@ -3710,7 +3713,6 @@ nexttoward_test (void)
 
   END (nexttoward);
 }
-#endif
 
 
 static void
@@ -3950,7 +3952,6 @@ remainder_test (void)
   END (remainder);
 }
 
-#if 0
 static void
 remquo_test (void)
 {
@@ -3981,7 +3982,6 @@ remquo_test (void)
 
   END (remquo);
 }
-#endif
 
 static void
 rint_test (void)
@@ -4229,12 +4229,12 @@ round_test (void)
 #endif
 
 
+#ifdef __UCLIBC_SUSV3_LEGACY__
 static void
 scalb_test (void)
 {
   START (scalb);
 #ifndef TEST_LDOUBLE /* uclibc doesn't have scalbl */
-#ifdef __UCLIBC_SUSV3_LEGACY__ /* scalbf is susv3 legacy */
 
   TEST_ff_f (scalb, 2.0, 0.5, nan_value, INVALID_EXCEPTION);
   TEST_ff_f (scalb, 3.0, -2.5, nan_value, INVALID_EXCEPTION);
@@ -4285,11 +4285,10 @@ scalb_test (void)
 
   TEST_ff_f (scalb, 0.8L, 4, 12.8L);
   TEST_ff_f (scalb, -0.854375L, 5, -27.34L);
-#endif /* __UCLIBC_SUSV3_LEGACY__ */
 #endif /* TEST_LDOUBLE */
   END (scalb);
 }
-
+#endif
 
 static void
 scalbn_test (void)
@@ -4313,7 +4312,6 @@ scalbn_test (void)
 }
 
 
-#if 0
 static void
 scalbln_test (void)
 {
@@ -4334,7 +4332,6 @@ scalbln_test (void)
 
   END (scalbn);
 }
-#endif
 
 
 static void
@@ -4539,7 +4536,6 @@ tanh_test (void)
   END (tanh);
 }
 
-#if 0
 static void
 tgamma_test (void)
 {
@@ -4571,7 +4567,6 @@ tgamma_test (void)
 
   END (tgamma);
 }
-#endif
 
 
 #if 0
@@ -4651,7 +4646,7 @@ trunc_test (void)
 }
 #endif
 
-#if defined __DO_XSI_MATH__
+#if defined __DO_XSI_MATH__ && !(defined TEST_LDOUBLE || defined TEST_FLOAT)
 static void
 y0_test (void)
 {
@@ -4979,11 +4974,11 @@ main (int argc, char **argv)
   logb_test ();
   modf_test ();
   ilogb_test ();
+#ifdef __UCLIBC_SUSV3_LEGACY__
   scalb_test ();
-  scalbn_test ();
-#if 0
-  scalbln_test ();
 #endif
+  scalbn_test ();
+  scalbln_test ();
   significand_test ();
 
   /* Power and absolute value functions:  */
@@ -4998,16 +4993,12 @@ main (int argc, char **argv)
   erfc_test ();
   gamma_test ();
   lgamma_test ();
-#if 0
   tgamma_test ();
-#endif
 
   /* Nearest integer functions:  */
   ceil_test ();
   floor_test ();
-#if 0
   nearbyint_test ();
-#endif
   rint_test ();
 #if 0
   rint_test_tonearest ();
@@ -5025,13 +5016,10 @@ main (int argc, char **argv)
   /* Remainder functions:  */
   fmod_test ();
   remainder_test ();
-#if 0
   remquo_test ();
-#endif
 
   /* Manipulation functions:  */
   copysign_test ();
-#if 0
   nextafter_test ();
   nexttoward_test ();
 
@@ -5043,24 +5031,29 @@ main (int argc, char **argv)
   /* Multiply and add:  */
   fma_test ();
 
+
   /* Complex functions:  */
   cabs_test ();
+#if __CHK_COMPLEX_STUFF
+#if 0
   cacos_test ();
   cacosh_test ();
+#endif
   carg_test ();
+#if 0
   casin_test ();
   casinh_test ();
   catan_test ();
   catanh_test ();
   ccos_test ();
   ccosh_test ();
+#endif
   cexp_test ();
+#if 0
   cimag_test ();
   clog10_test ();
   clog_test ();
-#if 0
   conj_test ();
-#endif
   cpow_test ();
   cproj_test ();
   creal_test ();
@@ -5070,9 +5063,10 @@ main (int argc, char **argv)
   ctan_test ();
   ctanh_test ();
 #endif
+#endif /* __CHK_COMPLEX_STUFF */
 
   /* Bessel functions:  */
-#if defined __DO_XSI_MATH__
+#if defined __DO_XSI_MATH__ && !(defined TEST_LDOUBLE || defined TEST_FLOAT)
   j0_test ();
   j1_test ();
   jn_test ();

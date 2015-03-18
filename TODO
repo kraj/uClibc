@@ -93,6 +93,7 @@ TODO list for the uClibc 1.0.0 release:
 	ugetrlimit, it seems, else use the modern variant)
 	*) simplify exec*() in the light of execvpe (perhaps single internal
 	impl); USE_GNU for execvpe (and other GNU extensions, see psm).
+	*) Remove unused math complex hidden protos throughout
 
 
 TODO list for AFTER the uClibc 1.0.0 release:
