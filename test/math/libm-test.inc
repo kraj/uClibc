@@ -3418,8 +3418,6 @@ log1p_test (void)
   END (log1p);
 }
 
-
-#if 0
 static void
 log2_test (void)
 {
@@ -3449,8 +3447,6 @@ log2_test (void)
 
   END (log2);
 }
-#endif
-
 
 static void
 logb_test (void)
@@ -4968,9 +4964,7 @@ main (int argc, char **argv)
   log_test ();
   log10_test ();
   log1p_test ();
-#if 0
   log2_test ();
-#endif
   logb_test ();
   modf_test ();
   ilogb_test ();
