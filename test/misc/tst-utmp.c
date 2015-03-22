@@ -37,6 +37,21 @@
 # include <utmp.h>
 #endif
 
+#ifndef _HAVE_UT_TYPE
+# define _HAVE_UT_TYPE 0
+#endif
+#ifndef _HAVE_UT_PID
+# define _HAVE_UT_PID 0
+#endif
+#ifndef _HAVE_UT_ID
+# define _HAVE_UT_ID 0
+#endif
+#ifndef _HAVE_UT_TV
+# define _HAVE_UT_TV 0
+#endif
+#ifndef _HAVE_UT_HOST
+# define _HAVE_UT_HOST 0
+#endif
 
 #if _HAVE_UT_TYPE || defined UTMPX
 

@@ -16,6 +16,10 @@ ifeq ($(UCLIBC_HAS_GLOB),)
 TESTS_DISABLED += bug-glob2
 endif
 
+ifeq ($(UCLIBC_HAS_UTMPX),)
+TESTS_DISABLED += tst-utmpx
+endif
+
 DODIFF_dirent    := 1
 DODIFF_dirent64  := 1
 DODIFF_tst-statfs := 1

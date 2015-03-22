@@ -163,6 +163,7 @@ misc/tst-seekdir
 misc/tst-statfs
 misc/tst-statvfs
 misc/tst-utmp
+misc/tst-utmpx
 mmap/mmap
 mmap/mmap2
 mmap/mmap64
