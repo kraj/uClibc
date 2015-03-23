@@ -1,3 +1,4 @@
+/* vi: set sw=4 ts=4: */
 /*
  * utexent.c : Support for accessing user accounting database.
  * Copyright (C) 2010 STMicroelectronics Ltd.

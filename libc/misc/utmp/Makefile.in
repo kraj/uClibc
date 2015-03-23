@@ -7,7 +7,9 @@
 
 subdirs += libc/misc/utmp
 
-CSRC-y := utent.c wtent.c
+CSRC-y :=
+CSRC-$(if $(findstring y,$(UCLIBC_HAS_UTMP)$(UCLIBC_HAS_UTMPX)),y) += wtent.c
+CSRC-$(UCLIBC_HAS_UTMP) += utent.c
 CSRC-$(UCLIBC_HAS_UTMPX) += utxent.c
 
 MISC_UTMP_DIR := $(top_srcdir)libc/misc/utmp
