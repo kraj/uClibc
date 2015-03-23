@@ -29,7 +29,9 @@ objs: all_objs
 # apply unconditional per-directory flags
 define add_IS_IN_lib
 ifneq ($(strip $(2)),)
-__add_IS_IN_lib := $(2) $(2:.o=.i) $(2:.os=.i) $(2:.oS=.i)
+__add_IS_IN_lib := $(2)
+__add_IS_IN_lib += $(2:.o=.i) $(2:.os=.i) $(2:.oS=.i)
+__add_IS_IN_lib += $(2:.o=.s) $(2:.os=.s) $(2:.oS=.s)
 $$(__add_IS_IN_lib): CFLAGS-for-library-members:=$(CFLAGS-$(1)) -DIN_LIB=$(word 1,$(subst /, ,$(1)))
 endif
 endef
