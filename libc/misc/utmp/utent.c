@@ -143,7 +143,7 @@ strong_alias(__getutid_unlocked,getutid)
 #endif
 libc_hidden_def(getutid)
 
-static struct utmp *__getutline(const struct utmp *utmp_entry)
+struct utmp *getutline(const struct utmp *utmp_entry)
 {
     struct utmp *lutmp;
 
@@ -158,10 +158,9 @@ static struct utmp *__getutline(const struct utmp *utmp_entry)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return lutmp;
 }
-strong_alias(__getutline,getutline)
 libc_hidden_def(getutline)
 
-static struct utmp *__pututline(const struct utmp *utmp_entry)
+struct utmp *pututline(const struct utmp *utmp_entry)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
     /* Ignore the return value.  That way, if they've already positioned
@@ -178,10 +177,9 @@ static struct utmp *__pututline(const struct utmp *utmp_entry)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return (struct utmp *)utmp_entry;
 }
-strong_alias(__pututline,pututline)
 libc_hidden_def(pututline)
 
-static int __utmpname(const char *new_ut_name)
+int utmpname(const char *new_ut_name)
 {
     __UCLIBC_MUTEX_LOCK(utmplock);
     if (new_ut_name != NULL) {
@@ -202,5 +200,4 @@ static int __utmpname(const char *new_ut_name)
     __UCLIBC_MUTEX_UNLOCK(utmplock);
     return 0; /* or maybe return -(static_ut_name != new_ut_name)? */
 }
-strong_alias(__utmpname,utmpname)
 libc_hidden_def(utmpname)
