@@ -708,7 +708,7 @@ config UCLIBC_HAS_UTMPX
 
 config UCLIBC_HAS_UTMP
 	bool "utmp support (XPG2 compat, SVr4 compat)"
-	#depends on UCLIBC_HAS_UTMPX # for educational purposes..
+	depends on UCLIBC_HAS_UTMPX
 	help
 	  Answer y to enable legacy SVID support for accessing
 	  user accounting database:
