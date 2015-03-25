@@ -93,7 +93,7 @@ strong_alias(__getutent_unlocked,getutent)
 #endif
 libc_hidden_def(getutent)
 
-static void __endutent(void)
+void endutent(void)
 {
 	__UCLIBC_MUTEX_LOCK(utmplock);
 	if (static_fd >= 0)
@@ -101,7 +101,6 @@ static void __endutent(void)
 	static_fd = -1;
 	__UCLIBC_MUTEX_UNLOCK(utmplock);
 }
-strong_alias(__endutent,endutent)
 libc_hidden_def(endutent)
 
 /* This function must be called with the LOCK held */
