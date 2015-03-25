@@ -11,8 +11,9 @@ GLIBC_TESTS_DISABLED :=
 ifeq ($(UCLIBC_HAS_PTY),)
 TESTS_DISABLED += ptytest
 endif
+
 ifeq ($(UCLIBC_HAS_ARC4RANDOM),)
 TESTS_DISABLED += testarc4random
 else
-GLIBC_TESTS_DISABLED += testarc4random
+GLIBC_TESTS_DISABLED += testarc4random_glibc
 endif

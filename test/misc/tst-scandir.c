@@ -3,7 +3,7 @@
 #include <stdio.h> /* perror() */
 #include <stdlib.h>
 
-int skip_all(const struct dirent *dirbuf)
+static int skip_all(const struct dirent *dirbuf)
 {
 	errno = EBADF;
 	return 0;
