@@ -20,6 +20,10 @@ ifeq ($(UCLIBC_HAS_UTMPX),)
 TESTS_DISABLED += tst-utmpx
 endif
 
+ifeq ($(UCLIBC_HAS_UTMP),)
+TESTS_DISABLED += tst-utmp
+endif
+
 DODIFF_dirent    := 1
 DODIFF_dirent64  := 1
 DODIFF_tst-statfs := 1
