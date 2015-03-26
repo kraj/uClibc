@@ -263,6 +263,8 @@ signal/tst-sigset
 signal/tst-sigsimple
 silly/hello
 silly/tiny
+silly/tst-atomic
+silly/tst-atomic-long
 stat/memcmp-stat
 stat/stat
 stat/stat64
