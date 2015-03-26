@@ -69,7 +69,7 @@ endef
 define exec_test
 	$(showtest)
 	$(Q)\
-	$(WRAPPER) $(WRAPPER_$(tst_src_name)) \
+	$(SIMULATOR) $(WRAPPER) $(WRAPPER_$(tst_src_name)) \
 	./$(binary_name) $(OPTS) $(OPTS_$(tst_src_name)) > "$(binary_name).out" 2>&1 ; \
 		ret=$$? ; \
 		expected_ret="$(RET_$(tst_src_name))" ; \
@@ -85,6 +85,9 @@ endef
 
 test check all: run
 run: $(RUN_TARGETS)
+
+$(addsuffix .exe,$(U_TARGETS)): SIMULATOR:=$(SIMULATOR_uclibc)
+$(addsuffix .exe,$(G_TARGETS)): SIMULATOR:=$(SIMULATOR_glibc)
 $(RUN_TARGETS):
 	$(exec_test)
 	$(diff_test)

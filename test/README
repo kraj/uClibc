@@ -29,6 +29,9 @@ The following make variables may help you in testing:
 So, to just run the uClibc tests, try this:
 make check UCLIBC_ONLY=1
 
+You can pass the following 2 environment variables to "make run":
+ - make run SIMULATOR_uclibc=qemu-sh4 SIMULATOR_glibc=qemu-x86_64
+
 If you need to test just a subset of all test, delete subdirectories
 you do not need.
 
