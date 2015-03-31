@@ -92,7 +92,7 @@ $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(libpthread_OUT)/pthread-errnos.h: $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(libpthread_OUT)/pthread-errnos.h: $(top_srcdir)extra/scripts/gen-as-const.awk
 $(libpthread_OUT)/pthread-errnos.h: $(libpthread_DIR)/pthread-errnos.sym
 	@$(disp_gen)
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \

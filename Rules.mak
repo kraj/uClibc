@@ -168,7 +168,8 @@ libpthread.depend := $(top_builddir)lib/libpthread.so
 endif
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
-headers_dep := $(top_builddir)include/bits/sysnum.h
+headers_dep := $(top_builddir)include/bits/sysnum.h \
+	$(top_builddir)include/bits/uClibc_config.h
 sub_headers := $(headers_dep)
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc

@@ -57,8 +57,9 @@ ifeq ($(HAVE_DOT_CONFIG),y)
 $(top_builddir)include/bits/uClibc_config.h: $(conf) $(KCONFIG_CONFIG) $(top_srcdir)extra/scripts/conf-header.sh | $(top_builddir)include/bits
 	@$(disp_gen)
 	$(Q)$< -s $(Kconfig)
-	$(Q)$(top_srcdir)extra/scripts/conf-header.sh $(KCONFIG_CONFIG) > $@
+	$(Q)$(top_srcdir)extra/scripts/conf-header.sh $(KCONFIG_CONFIG) > $@.tmp
 	$(Q)$(MAKE) headers-y
+	$(Q)mv $@.tmp $@
 
 # The above doesn't work for threads, though. Just using check-symlinks for now.
 # XXX: FIXME: this is ugly
@@ -183,7 +184,10 @@ headers-y += $(target-headers-sysdep)
 
 headers: $(top_builddir)include/bits/uClibc_config.h | subdirs
 subdirs: $(addprefix $(top_builddir),$(subdirs))
-pregen-headers: $(top_builddir)include/bits/sysnum.h $(pregen-headers-y)
+
+$(pregen-headers-y): $(headers_dep)
+
+pregen-headers: $(pregen-headers-y)
 pregen: headers pregen-headers
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
 
