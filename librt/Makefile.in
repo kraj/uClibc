@@ -73,7 +73,7 @@ $(librt_OUT)/librt_so.a: $(librt-so-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(top_builddir)lib/librt.a: $(librt-a-y) | $(top_builddir)lib
+$(top_builddir)lib/librt.a: $(librt-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 

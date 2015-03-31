@@ -13,7 +13,7 @@ sub_headers := headers
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
-all: pregen libs
+all: pregen libs startfiles
 libs: pregen
 
 # In this section, we need .config
@@ -218,8 +218,6 @@ install: install_runtime install_dev
 
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)$(MULTILIB_DIR) $(RUNTIME_PREFIX)$(MULTILIB_DIR))
-
-startfiles: $(crt-y)
 
 $(top_builddir)extra/scripts/unifdef: |$(top_builddir)extra/scripts
 $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c

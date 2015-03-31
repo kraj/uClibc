@@ -68,6 +68,7 @@ LDFLAGS-$(UCLIBC_LDSO_NAME).so += -T $(ldso:.$(ABI_VERSION)=).lds
 endif
 
 $(ldso): $(ldso:.$(ABI_VERSION)=)
+$(ldso:.$(ABI_VERSION)=): | $(top_builddir)lib
 $(ldso:.$(ABI_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
 ifeq ($(LDSO_PRELINK_SUPPORT),y)
 	$(call create-lds)
