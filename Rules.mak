@@ -687,14 +687,18 @@ LDFLAGS_NOSTRIP += $(CFLAG_-Wl--hash-style=gnu)
 endif
 endif
 
-LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
 ifeq ($(DODEBUG),y)
 CFLAGS += -O0 -g3 -DDEBUG
 else
 CFLAGS += $(OPTIMIZATION)
 CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER))
 CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER).$(GCC_MINOR_VER))
+$(eval $(call check-ld-var,-O2))
+LDFLAGS_NOSTRIP += $(CFLAG_-Wl-O2)
 endif
+
+LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
+
 ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s
 else
