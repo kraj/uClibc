@@ -46,7 +46,7 @@ locale_OBJ := $(locale_OUT)/locale_data.o
 
 CFLAGS-locale_data.c := -D__WCHAR_ENABLED -I$(locale_OUT) -I$(locale_DIR)
 
-#headers-$(UCLIBC_HAS_LOCALE) += $(locale_headers-y)
+headers_dep += $(locale_headers-y)
 headers: $(locale_headers-y)
 
 libc-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
@@ -68,7 +68,7 @@ $(locale_OUT)%.s:  $(locale_OUT)%.S FORCE ; $(compile.s)
 $(locale_OUT)%.dep:
 
 
-locale_headers: headers $(top_builddir)include/bits/uClibc_locale_data.h
+locale_headers: $(top_builddir)include/bits/uClibc_locale_data.h
 
 # make sure that the host system has locales (this check is ok for uClibc/glibc)
 # we do not know though which locales were really enabled for libc at build time
