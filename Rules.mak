@@ -296,6 +296,8 @@ CPU_CFLAGS-y := -funsigned-char -fno-builtin
 
 $(eval $(call check-gcc-var,-fno-asm))
 CPU_CFLAGS-y += $(CFLAG_-fno-asm)
+$(eval $(call check-gcc-var,-fmerge-all-constants))
+CPU_CFLAGS-y += $(CFLAG_-fmerge-all-constants)
 
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
