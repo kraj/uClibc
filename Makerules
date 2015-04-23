@@ -430,6 +430,9 @@ CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
 else
 CTOR_TARGETS:=
 endif
+ifeq ($(HAS_NO_THREADS)$(UCLIBC_HAS_THREADS_NATIVE),)
+$(lib-so-y): $(CTOR_TARGETS)
+endif
 
 ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
 CRTRELOC=$(top_builddir)lib/crtreloc.o
