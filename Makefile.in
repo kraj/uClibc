@@ -29,6 +29,7 @@ headers:
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
+include $(top_srcdir)extra/locale/Makefile.in
 include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
 include $(top_srcdir)libintl/Makefile.in
@@ -39,7 +40,6 @@ include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
 include $(top_srcdir)librt/Makefile.in
 include $(top_srcdir)libubacktrace/Makefile.in
-include $(top_srcdir)extra/locale/Makefile.in
 
 # last included to catch all the objects added by others (locales/threads)
 include $(top_srcdir)libc/Makefile.in
