@@ -155,10 +155,10 @@ $(locale_OUT)/gen_wctype : $(locale_DIR)/gen_wctype.c
 
 ifneq ($(V),)
 ifeq ($(V),1)
-FLAG-locale-verbose := -v
+FLAG-locale-verbose := -v -v
 endif
 ifeq ($(V),2)
-FLAG-locale-verbose := -v -v
+FLAG-locale-verbose := -v
 endif
 endif
 

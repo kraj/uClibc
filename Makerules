@@ -94,7 +94,7 @@ else
 export MAKE_IS_SILENT := n
 SECHO := @echo
 ifneq ($(V)$(VERBOSE),)
-ifeq ($(V),1)
+ifeq ($(V),2)
 DISP := bri# brief, like pur but with defines
 Q := @
 else
