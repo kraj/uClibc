@@ -6,3 +6,10 @@ RET_tiny  := 42
 
 # missing internal headers, disable these
 GLIBC_TESTS_DISABLED := tst-atomic_glibc tst-atomic-long_glibc
+
+atomic_headers := -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
+	-I$(top_srcdir)libc/sysdeps/linux \
+	-I$(top_builddir)include
+
+CFLAGS_tst-atomic = $(atomic_headers)
+CFLAGS_tst-atomic-long = $(atomic_headers)
