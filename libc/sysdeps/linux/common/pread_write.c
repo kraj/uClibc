@@ -28,87 +28,109 @@
 #define LIBC_CANCEL_HANDLED()	/* Nothing.  */
 #endif
 
-extern __typeof(pread) __libc_pread;
-extern __typeof(pwrite) __libc_pwrite;
-#ifdef __UCLIBC_HAS_LFS__
-extern __typeof(pread64) __libc_pread64;
-extern __typeof(pwrite64) __libc_pwrite64;
-#endif
-
-#ifdef __NR_pread64             /* Newer kernels renamed but it's the same.  */
+#ifdef __NR_pread64
 # undef __NR_pread
 # define __NR_pread __NR_pread64
 #endif
+#ifdef __NR_pwrite64
+# undef __NR_pwrite
+# define __NR_pwrite __NR_pwrite64
+#endif
 
-#include <bits/kernel_types.h>
+#ifndef MY_PREAD
+# ifdef __NR_pread
+#  define __NR___syscall_pread __NR_pread
+#  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+static _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf,
+                 size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
+#   define MY_PREAD(fd, buf, count, offset) __syscall_pread(fd, buf, count, 0, OFF_HI_LO(offset))
+#   define MY_PREAD64(fd, buf, count, offset) __syscall_pread(fd, buf, count, 0, OFF64_HI_LO(offset))
+#  elif __WORDSIZE == 32
+static _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
+                 size_t, count, off_t, offset_hi, off_t, offset_lo)
+#   define MY_PREAD(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF_HI_LO(offset))
+#   define MY_PREAD64(fd, buf, count, offset) __syscall_pread(fd, buf, count, OFF64_HI_LO(offset))
+#  else
+static _syscall4(ssize_t, __syscall_pread, int, fd, void *, buf,
+                 size_t, count, off_t, offset)
+#   define MY_PREAD(fd, buf, count, offset) __syscall_pread(fd, buf, count, offset)
+#   define MY_PREAD64(fd, buf, count, offset) __syscall_pread(fd, buf, count, offset)
+#  endif
+# endif
+#endif
 
-# define __NR___syscall_pread __NR_pread
-
-#if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
-static __inline__ _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf,
-		 size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
-# define __syscall_pread(fd, buf, count, ...) __syscall_pread(fd, buf, count, 0, __VA_ARGS__)
-#else
-static __inline__ _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
-		size_t, count, off_t, offset_hi, off_t, offset_lo)
+#ifndef MY_PWRITE
+# ifdef __NR_pwrite
+#  define __NR___syscall_pwrite __NR_pwrite
+#  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+static _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
+                 size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
+#   define MY_PWRITE(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, 0, OFF_HI_LO(offset))
+#   define MY_PWRITE64(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, 0, OFF64_HI_LO(offset))
+#  elif __WORDSIZE == 32
+static _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
+                 size_t, count, off_t, offset_hi, off_t, offset_lo)
+#   define MY_PWRITE(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF_HI_LO(offset))
+#   define MY_PWRITE64(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, OFF64_HI_LO(offset))
+#  else
+static _syscall4(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
+                 size_t, count, off_t, offset)
+#   define MY_PWRITE(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, offset)
+#   define MY_PWRITE64(fd, buf, count, offset) __syscall_pwrite(fd, buf, count, offset)
+#  endif
+# endif
 #endif
 
 ssize_t __libc_pread(int fd, void *buf, size_t count, off_t offset)
 {
 	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __syscall_pread(fd, buf, count, __LONG_LONG_PAIR(offset >> 31, offset));
+	int result = MY_PREAD(fd, buf, count, offset);
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 
 }
 weak_alias(__libc_pread,pread)
 
-# ifdef __UCLIBC_HAS_LFS__
-ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
-{
-	uint32_t low = offset & 0xffffffff;
-	uint32_t high = offset >> 32;
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __syscall_pread(fd, buf, count, __LONG_LONG_PAIR(high, low));
-	LIBC_CANCEL_RESET (oldtype);
-	return result;
-}
-weak_alias(__libc_pread64,pread64)
-# endif /* __UCLIBC_HAS_LFS__  */
-
-#ifdef __NR_pwrite64             /* Newer kernels renamed but it's the same.  */
-# undef __NR_pwrite
-# define __NR_pwrite __NR_pwrite64
-#endif
-
-# define __NR___syscall_pwrite __NR_pwrite
-#if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
-static __inline__ _syscall6(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
-		size_t, count, int, dummy, off_t, offset_hi, off_t, offset_lo)
-# define __syscall_pwrite(fd, buf, count, ...) __syscall_pwrite(fd, buf, count, 0, __VA_ARGS__)
-#else
-static __inline__ _syscall5(ssize_t, __syscall_pwrite, int, fd, const void *, buf,
-		size_t, count, off_t, offset_hi, off_t, offset_lo)
-#endif
-
 ssize_t __libc_pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
 	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __syscall_pwrite(fd, buf, count, __LONG_LONG_PAIR(offset >> 31, offset));
+	int result = MY_PWRITE(fd, buf, count, offset);
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 }
 weak_alias(__libc_pwrite,pwrite)
 
-# ifdef __UCLIBC_HAS_LFS__
+#ifdef __UCLIBC_HAS_LFS__
+# if __WORDSIZE == 32
+ssize_t __libc_pread64(int fd, void *buf, size_t count, off64_t offset)
+{
+	int oldtype = LIBC_CANCEL_ASYNC ();
+	int result = MY_PREAD64(fd, buf, count, offset);
+	LIBC_CANCEL_RESET (oldtype);
+	return result;
+}
+weak_alias(__libc_pread64,pread64)
+
 ssize_t __libc_pwrite64(int fd, const void *buf, size_t count, off64_t offset)
 {
-	uint32_t low = offset & 0xffffffff;
-	uint32_t high = offset >> 32;
 	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __syscall_pwrite(fd, buf, count, __LONG_LONG_PAIR(high, low));
+	int result = MY_PWRITE64(fd, buf, count, offset);
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 }
 weak_alias(__libc_pwrite64,pwrite64)
-# endif /* __UCLIBC_HAS_LFS__  */
+
+# else
+#  ifdef __LINUXTHREADS_OLD__
+weak_alias(pread,pread64)
+weak_alias(pwrite,pwrite64)
+extern __typeof(pread64) __libc_pread64;
+extern __typeof(pwrite64) __libc_pwrite4;
+strong_alias(pread64,__libc_pread64)
+strong_alias(pwrite64,__libc_write64)
+#  else
+strong_alias_untyped(pread,pread64)
+strong_alias_untyped(pwrite,pwrite64)
+#  endif
+# endif
+#endif
