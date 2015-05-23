@@ -73,7 +73,7 @@ config TARGET_frv
 	bool "frv (BROKEN)"
 
 config TARGET_h8300
-	bool "h8300 (BROKEN)"
+	bool "h8300"
 
 config TARGET_hppa
 	bool "hppa"
