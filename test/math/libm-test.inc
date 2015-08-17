@@ -3470,7 +3470,6 @@ logb_test (void)
 }
 
 
-#if 0
 static void
 lround_test (void)
 {
@@ -3605,7 +3604,6 @@ llround_test (void)
 
   END (llround);
 }
-#endif
 
 static void
 modf_test (void)
