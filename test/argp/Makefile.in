@@ -1,0 +1,12 @@
+# uClibc argp tests
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+
+TESTS := $(addprefix argp-, ex1 ex2 ex3 ex4 test) \
+         bug-argp1 tst-argp1 tst-argp2
+
+EXTRA_LDFLAGS = -luargp
+
+OPTS_argp-ex3 = ARG1 ARG2
+OPTS_argp-ex4 = ARG1 string1 string2 string3
+OPTS_bug-argp1 = -- --help
+
