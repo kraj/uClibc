@@ -21,3 +21,9 @@ ASFLAGS-pt-vfork.S = -marm
 CFLAGS-OMIT-pt-vfork.S = -mthumb
 ASFLAGS-vfork.S = -marm
 CFLAGS-OMIT-vfork.S = -mthumb
+
+# For arm fork.c does not compile with -Os when compiling
+# in thumb1 mode
+ifeq ($(COMPILE_IN_THUMB_MODE),y)
+CFLAGS-fork.c = -O2
+endif
