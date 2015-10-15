@@ -65,6 +65,9 @@ __BEGIN_DECLS
 # define AT_SYMLINK_FOLLOW	0x400	/* Follow symbolic links.  */
 # define AT_EACCESS		0x200	/* Test access permitted for
 					   effective IDs, not real IDs.  */
+# ifdef __USE_GNU
+#  define AT_EMPTY_PATH         0x1000  /* Allow empty relative pathname.  */
+# endif
 #endif
 
 /* Do the file control operation described by CMD on FD.
